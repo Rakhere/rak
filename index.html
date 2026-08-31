@@ -1,1804 +1,1173 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Raktima Sengupta — Biotech Studio · Living Systems & Code</title>
-    <meta name="description"
-        content="Portfolio of Raktima Sengupta — biotechnologist building at the intersection of biology, sustainable materials, and digital systems." />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,100..900;1,9..144,100..900&family=Space+Grotesk:wght@300;400;500;700&family=JetBrains+Mono:wght@300;400;500&display=swap"
-        rel="stylesheet">
-    <style>
-        :root {
-            --bg: #EFEAE0;
-            --ink: #0E0F0C;
-            --ink-2: #2A2C26;
-            --muted: #7A7468;
-            --rule: #D6CFBE;
-            --paper: #F7F3E9;
-            --moss: #1F3D2B;
-            --moss-2: #3A6B48;
-            --acid: #C9F24D;
-            --rust: #C44A1A;
-            --plum: #5B2A4C;
-            --accent: var(--moss);
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box
-        }
-
-        html,
-        body {
-            background: var(--bg);
-            color: var(--ink);
-            font-family: 'Space Grotesk', system-ui, sans-serif;
-            overflow-x: hidden
-        }
-
-        body {
-            cursor: none
-        }
-
-        @media (pointer:coarse) {
-            body {
-                cursor: auto
-            }
-        }
-
-        a,
-        button {
-            color: inherit;
-            text-decoration: none;
-            background: none;
-            border: none;
-            font: inherit
-        }
-
-        ::selection {
-            background: var(--ink);
-            color: var(--acid)
-        }
-
-        /* GRAIN canvas */
-        #grain {
-            position: fixed;
-            inset: 0;
-            pointer-events: none;
-            opacity: 0.08;
-            mix-blend-mode: multiply;
-            z-index: 1
-        }
-
-        #blob {
-            position: fixed;
-            inset: 0;
-            pointer-events: none;
-            z-index: 0
-        }
-
-        /* CURSOR */
-        #cur,
-        #curRing {
-            position: fixed;
-            top: 0;
-            left: 0;
-            pointer-events: none;
-            z-index: 9999;
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            mix-blend-mode: difference
-        }
-
-        #cur {
-            width: 10px;
-            height: 10px;
-            background: #fff;
-            transition: width .25s, height .25s, background .25s
-        }
-
-        #curRing {
-            width: 36px;
-            height: 36px;
-            border: 1px solid #fff;
-            transition: width .3s, height .3s, border-color .3s
-        }
-
-        body.hov #cur {
-            width: 0;
-            height: 0
-        }
-
-        body.hov #curRing {
-            width: 64px;
-            height: 64px;
-            border: 2px solid var(--acid);
-            mix-blend-mode: normal
-        }
-
-        body.drag #curRing {
-            width: 80px;
-            height: 80px;
-            border: 1px dashed #fff
-        }
-
-        @media (pointer:coarse) {
-
-            #cur,
-            #curRing {
-                display: none
-            }
-        }
-
-        /* SCROLL PROGRESS */
-        #progress {
-            position: fixed;
-            top: 0;
-            left: 0;
-            height: 2px;
-            background: var(--ink);
-            width: 0;
-            z-index: 200;
-            transition: width .1s linear
-        }
-
-        /* NAV */
-        nav.top {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 100;
-            padding: 18px 28px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            mix-blend-mode: difference;
-            color: #fff;
-        }
-
-        nav.top .mark {
-            font-family: 'Fraunces', serif;
-            font-weight: 300;
-            font-style: italic;
-            font-size: 1.5rem;
-            letter-spacing: -.02em
-        }
-
-        nav.top .mark b {
-            font-weight: 700;
-            font-style: normal
-        }
-
-        nav.top .links {
-            display: flex;
-            gap: 28px;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            letter-spacing: 0.16em
-        }
-
-        nav.top .links a {
-            position: relative;
-            padding: 6px 0;
-            opacity: 0.7;
-            transition: opacity .3s
-        }
-
-        nav.top .links a:hover,
-        nav.top .links a.active {
-            opacity: 1
-        }
-
-        nav.top .links a.active::before {
-            content: "→ ";
-            color: var(--acid);
-            mix-blend-mode: normal
-        }
-
-        nav.top .clock {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.7rem;
-            letter-spacing: 0.1em;
-            opacity: 0.7
-        }
-
-        @media (max-width:780px) {
-            nav.top .links {
-                display: none
-            }
-
-            nav.top .clock {
-                display: none
-            }
-        }
-
-        /* SECTION wrapper */
-        section {
-            position: relative;
-            z-index: 2;
-            padding: 140px 28px
-        }
-
-        .wrap {
-            max-width: 1320px;
-            margin: 0 auto
-        }
-
-        .mono {
-            font-family: 'JetBrains Mono', monospace;
-            text-transform: uppercase;
-            letter-spacing: 0.18em;
-            font-size: 0.7rem;
-            color: var(--muted)
-        }
-
-        h1,
-        h2,
-        h3,
-        h4 {
-            font-family: 'Fraunces', serif;
-            font-weight: 300;
-            letter-spacing: -.02em;
-            line-height: 1
-        }
-
-        /* HERO */
-        .hero {
-            min-height: 100vh;
-            padding-top: 120px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between
-        }
-
-        .hero-top {
-            display: flex;
-            justify-content: space-between;
-            gap: 40px;
-            margin-bottom: 60px;
-            flex-wrap: wrap
-        }
-
-        .hero-top .meta {
-            max-width: 280px;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.72rem;
-            line-height: 1.7;
-            color: var(--ink-2)
-        }
-
-        .hero-top .meta .dot {
-            display: inline-block;
-            width: 8px;
-            height: 8px;
-            background: var(--moss-2);
-            border-radius: 50%;
-            margin-right: 8px;
-            animation: pulse 2s infinite
-        }
-
-        @keyframes pulse {
-
-            0%,
-            100% {
-                opacity: 1;
-                transform: scale(1)
-            }
-
-            50% {
-                opacity: .4;
-                transform: scale(.8)
-            }
-        }
-
-        .hero-name {
-            font-family: 'Fraunces', serif;
-            font-weight: 200;
-            font-size: clamp(4rem, 16vw, 16rem);
-            line-height: 0.85;
-            letter-spacing: -.04em;
-            position: relative
-        }
-
-        .hero-name .l1 {
-            display: block
-        }
-
-        .hero-name .l2 {
-            display: block;
-            font-style: italic;
-            font-weight: 300;
-            padding-left: 0.18em;
-            color: var(--moss)
-        }
-
-        .hero-name .l2 span {
-            display: inline-block;
-            transition: transform .4s cubic-bezier(.2, .9, .2, 1.2), color .3s
-        }
-
-        .hero-name .l2 span:hover {
-            transform: translateY(-12px) rotate(-4deg);
-            color: var(--rust)
-        }
-
-        .hero-bottom {
-            display: grid;
-            grid-template-columns: 1.2fr 1fr 1fr;
-            gap: 60px;
-            align-items: end;
-            margin-top: 40px
-        }
-
-        .hero-tag {
-            font-family: 'Fraunces', serif;
-            font-style: italic;
-            font-weight: 300;
-            font-size: clamp(1.2rem, 1.8vw, 1.6rem);
-            line-height: 1.4;
-            max-width: 32ch
-        }
-
-        .hero-tag em {
-            color: var(--moss);
-            font-style: normal;
-            border-bottom: 1px solid var(--moss)
-        }
-
-        .hero-info h5 {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.65rem;
-            text-transform: uppercase;
-            letter-spacing: 0.18em;
-            color: var(--muted);
-            margin-bottom: 10px;
-            font-weight: 400
-        }
-
-        .hero-info p {
-            font-size: 0.95rem;
-            line-height: 1.6
-        }
-
-        .hero-info a {
-            display: inline-block;
-            position: relative
-        }
-
-        .hero-info a::after {
-            content: "";
-            position: absolute;
-            left: 0;
-            bottom: -2px;
-            width: 100%;
-            height: 1px;
-            background: currentColor;
-            transform: scaleX(0);
-            transform-origin: right;
-            transition: transform .4s cubic-bezier(.7, 0, .3, 1)
-        }
-
-        .hero-info a:hover::after {
-            transform: scaleX(1);
-            transform-origin: left
-        }
-
-        @media (max-width:880px) {
-            .hero-bottom {
-                grid-template-columns: 1fr;
-                gap: 32px
-            }
-        }
-
-        /* MARQUEE */
-        .marquee {
-            overflow: hidden;
-            padding: 28px 0;
-            border-top: 1px solid var(--ink);
-            border-bottom: 1px solid var(--ink);
-            white-space: nowrap;
-            font-family: 'Fraunces', serif;
-            font-style: italic;
-            font-size: clamp(2rem, 5vw, 4.5rem);
-            font-weight: 200;
-            background: var(--ink);
-            color: var(--paper)
-        }
-
-        .marquee .track {
-            display: inline-block;
-            animation: scroll 32s linear infinite
-        }
-
-        .marquee .track span {
-            display: inline-block;
-            padding: 0 30px
-        }
-
-        .marquee .track span::after {
-            content: "✿";
-            color: var(--acid);
-            font-style: normal;
-            padding-left: 60px
-        }
-
-        @keyframes scroll {
-            from {
-                transform: translateX(0)
-            }
-
-            to {
-                transform: translateX(-50%)
-            }
-        }
-
-        /* SECTION HEAD */
-        .sec-head {
-            display: flex;
-            align-items: flex-end;
-            justify-content: space-between;
-            gap: 40px;
-            margin-bottom: 80px;
-            padding-bottom: 24px;
-            border-bottom: 1px solid var(--ink);
-            flex-wrap: wrap
-        }
-
-        .sec-head .num {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            letter-spacing: 0.18em;
-            color: var(--muted);
-            margin-bottom: 14px
-        }
-
-        .sec-head h2 {
-            font-size: clamp(3rem, 7vw, 6rem);
-            font-weight: 200;
-            letter-spacing: -.04em
-        }
-
-        .sec-head h2 i {
-            font-weight: 300;
-            color: var(--moss)
-        }
-
-        .sec-head .desc {
-            max-width: 340px;
-            font-size: 0.9rem;
-            color: var(--ink-2);
-            line-height: 1.6
-        }
-
-        /* PROJECTS — horizontal drag scroller */
-        .proj-rail-wrap {
-            position: relative
-        }
-
-        .proj-hint {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.65rem;
-            text-transform: uppercase;
-            letter-spacing: 0.18em;
-            color: var(--muted);
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center
-        }
-
-        .proj-hint .arrows {
-            display: flex;
-            gap: 10px
-        }
-
-        .proj-hint button {
-            width: 42px;
-            height: 42px;
-            border: 1px solid var(--ink);
-            background: transparent;
-            transition: background .3s, color .3s
-        }
-
-        .proj-hint button:hover {
-            background: var(--ink);
-            color: var(--paper)
-        }
-
-        .proj-rail {
-            display: flex;
-            gap: 24px;
-            overflow-x: auto;
-            scroll-snap-type: x mandatory;
-            padding: 6px 0 30px;
-            scrollbar-width: none;
-            cursor: grab
-        }
-
-        .proj-rail::-webkit-scrollbar {
-            display: none
-        }
-
-        .proj-rail.dragging {
-            cursor: grabbing
-        }
-
-        .proj-card {
-            flex: 0 0 min(560px, 88vw);
-            scroll-snap-align: start;
-            background: var(--paper);
-            border: 1px solid var(--ink);
-            padding: 32px;
-            display: flex;
-            flex-direction: column;
-            gap: 24px;
-            min-height: 600px;
-            position: relative;
-            transition: transform .5s cubic-bezier(.2, .9, .2, 1), background .4s, color .4s;
-        }
-
-        .proj-card:hover {
-            transform: translateY(-8px)
-        }
-
-        .proj-card[data-tone="moss"]:hover {
-            background: var(--moss);
-            color: var(--paper);
-            border-color: var(--moss)
-        }
-
-        .proj-card[data-tone="acid"]:hover {
-            background: var(--acid);
-            color: var(--ink)
-        }
-
-        .proj-card[data-tone="rust"]:hover {
-            background: var(--rust);
-            color: var(--paper);
-            border-color: var(--rust)
-        }
-
-        .proj-card .pc-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            letter-spacing: 0.16em
-        }
-
-        .proj-card .pc-num {
-            opacity: .6
-        }
-
-        .proj-card .pc-tag {
-            border: 1px solid currentColor;
-            padding: 5px 10px;
-            opacity: .85
-        }
-
-        .proj-card h3 {
-            font-family: 'Fraunces', serif;
-            font-size: clamp(1.6rem, 2.2vw, 2.2rem);
-            font-weight: 300;
-            line-height: 1.05;
-            letter-spacing: -.02em
-        }
-
-        .proj-card h3 em {
-            font-style: italic;
-            font-weight: 400
-        }
-
-        .proj-card .pc-desc {
-            font-size: 0.92rem;
-            line-height: 1.65;
-            opacity: .85
-        }
-
-        .proj-card .pc-meta {
-            margin-top: auto;
-            padding-top: 24px;
-            border-top: 1px solid currentColor;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 18px;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.7rem
-        }
-
-        .proj-card .pc-meta div span {
-            display: block;
-            opacity: .55;
-            margin-bottom: 6px;
-            font-size: 0.6rem;
-            letter-spacing: 0.15em;
-            text-transform: uppercase
-        }
-
-        .proj-card .pc-cta {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            letter-spacing: 0.16em;
-            align-self: flex-start;
-            padding: 10px 0;
-            position: relative;
-            cursor: none
-        }
-
-        .proj-card .pc-cta::after {
-            content: " →";
-            transition: transform .3s;
-            display: inline-block
-        }
-
-        .proj-card .pc-cta:hover::after {
-            transform: translateX(8px)
-        }
-
-        /* PROJECT MODAL */
-        .modal {
-            position: fixed;
-            inset: 0;
-            z-index: 300;
-            display: none;
-            align-items: flex-start;
-            justify-content: center;
-            padding: 80px 24px;
-            overflow-y: auto
-        }
-
-        .modal.open {
-            display: flex;
-            animation: mfade .4s ease
-        }
-
-        @keyframes mfade {
-            from {
-                opacity: 0
-            }
-
-            to {
-                opacity: 1
-            }
-        }
-
-        .modal::before {
-            content: "";
-            position: absolute;
-            inset: 0;
-            background: rgba(14, 15, 12, 0.85);
-            backdrop-filter: blur(8px)
-        }
-
-        .modal-inner {
-            position: relative;
-            max-width: 880px;
-            width: 100%;
-            background: var(--paper);
-            border: 1px solid var(--ink);
-            padding: 60px;
-            animation: mslide .5s cubic-bezier(.2, .9, .2, 1)
-        }
-
-        @keyframes mslide {
-            from {
-                transform: translateY(40px);
-                opacity: 0
-            }
-
-            to {
-                transform: translateY(0);
-                opacity: 1
-            }
-        }
-
-        .modal-close {
-            position: absolute;
-            top: 18px;
-            right: 18px;
-            width: 42px;
-            height: 42px;
-            border: 1px solid var(--ink);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 1rem;
-            transition: background .3s, color .3s
-        }
-
-        .modal-close:hover {
-            background: var(--ink);
-            color: var(--paper)
-        }
-
-        .modal-inner .m-eyebrow {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            letter-spacing: 0.18em;
-            color: var(--muted);
-            margin-bottom: 18px
-        }
-
-        .modal-inner h3 {
-            font-family: 'Fraunces', serif;
-            font-size: clamp(2rem, 4vw, 3rem);
-            font-weight: 300;
-            line-height: 1.05;
-            letter-spacing: -.02em;
-            margin-bottom: 30px
-        }
-
-        .modal-inner .m-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 36px;
-            margin-bottom: 30px
-        }
-
-        .modal-inner h4 {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.65rem;
-            text-transform: uppercase;
-            letter-spacing: 0.18em;
-            color: var(--moss);
-            margin-bottom: 10px;
-            font-weight: 500
-        }
-
-        .modal-inner p,
-        .modal-inner li {
-            font-size: 0.9rem;
-            line-height: 1.7;
-            color: var(--ink-2)
-        }
-
-        .modal-inner ol,
-        .modal-inner ul {
-            padding-left: 18px
-        }
-
-        .modal-inner .m-tags {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-top: 8px
-        }
-
-        .modal-inner .m-tags span {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.62rem;
-            text-transform: uppercase;
-            letter-spacing: 0.12em;
-            border: 1px solid var(--ink);
-            padding: 5px 10px;
-            transition: all .3s
-        }
-
-        .modal-inner .m-tags span:hover {
-            background: var(--moss);
-            color: var(--paper);
-            border-color: var(--moss)
-        }
-
-        .modal-inner .m-impact {
-            margin-top: 24px;
-            padding: 20px;
-            background: var(--bg);
-            border-left: 3px solid var(--moss);
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.78rem;
-            line-height: 1.6;
-            color: var(--ink)
-        }
-
-        @media (max-width:680px) {
-            .modal-inner {
-                padding: 40px 24px
-            }
-
-            .modal-inner .m-grid {
-                grid-template-columns: 1fr
-            }
-        }
-
-        /* MANIFESTO / ABOUT */
-        .manifesto {
-            background: var(--ink);
-            color: var(--paper)
-        }
-
-        .manifesto .sec-head {
-            border-color: var(--paper)
-        }
-
-        .manifesto .sec-head .num,
-        .manifesto .sec-head .desc {
-            color: #aaa
-        }
-
-        .manifesto .sec-head h2 i {
-            color: var(--acid)
-        }
-
-        .manifesto-body {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 60px
-        }
-
-        .manifesto-body .big {
-            font-family: 'Fraunces', serif;
-            font-weight: 200;
-            font-size: clamp(2rem, 3.5vw, 3.2rem);
-            line-height: 1.15;
-            letter-spacing: -.02em
-        }
-
-        .manifesto-body .big em {
-            color: var(--acid);
-            font-style: italic
-        }
-
-        .manifesto-body .col p {
-            font-size: 0.95rem;
-            line-height: 1.7;
-            color: #c8c4ba;
-            margin-bottom: 18px
-        }
-
-        .manifesto-body .col .stats {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 24px;
-            margin-top: 32px;
-            padding-top: 32px;
-            border-top: 1px solid #333
-        }
-
-        .manifesto-body .col .stats div {
-            font-family: 'JetBrains Mono', monospace
-        }
-
-        .manifesto-body .col .stats span.n {
-            font-family: 'Fraunces', serif;
-            font-size: 3rem;
-            font-weight: 200;
-            color: var(--acid);
-            display: block
-        }
-
-        .manifesto-body .col .stats span.l {
-            font-size: 0.65rem;
-            text-transform: uppercase;
-            letter-spacing: 0.16em;
-            color: #888;
-            margin-top: 6px;
-            display: block
-        }
-
-        @media (max-width:880px) {
-            .manifesto-body {
-                grid-template-columns: 1fr;
-                gap: 40px
-            }
-        }
-
-        /* SKILLS RIBBON */
-        .skills-ribbon {
-            padding: 48px 28px;
-            background: var(--paper);
-            border-top: 1px solid var(--rule);
-            border-bottom: 1px solid var(--rule);
-            position: relative;
-            z-index: 2
-        }
-
-        .skills-ribbon .wrap {
-            display: flex;
-            flex-direction: column;
-            gap: 28px
-        }
-
-        .skills-ribbon .sr-label {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.65rem;
-            text-transform: uppercase;
-            letter-spacing: 0.2em;
-            color: var(--muted)
-        }
-
-        .skills-ribbon .sr-tags {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px
-        }
-
-        .skills-ribbon .sr-tags .tag {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.72rem;
-            text-transform: uppercase;
-            letter-spacing: 0.12em;
-            padding: 8px 18px;
-            border: 1px solid var(--ink);
-            background: transparent;
-            color: var(--ink);
-            transition: background .35s, color .35s, border-color .35s, transform .35s cubic-bezier(.2, .9, .2, 1.2);
-            cursor: default;
-        }
-
-        .skills-ribbon .sr-tags .tag:hover {
-            background: var(--ink);
-            color: var(--acid);
-            transform: translateY(-4px)
-        }
-
-        .skills-ribbon .sr-tags .tag[data-cat="bio"]:hover {
-            background: var(--moss);
-            color: var(--paper);
-            border-color: var(--moss)
-        }
-
-        .skills-ribbon .sr-tags .tag[data-cat="tech"]:hover {
-            background: var(--plum);
-            color: #fff;
-            border-color: var(--plum)
-        }
-
-        .skills-ribbon .sr-tags .tag[data-cat="mat"]:hover {
-            background: var(--rust);
-            color: #fff;
-            border-color: var(--rust)
-        }
-
-        /* CURRENTLY EXPLORING PILL */
-        .explore-pill {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            margin-top: 14px;
-            padding: 6px 14px;
-            border: 1px solid var(--rule);
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.62rem;
-            text-transform: uppercase;
-            letter-spacing: 0.14em;
-            color: var(--muted);
-            border-radius: 2px
-        }
-
-        .explore-pill .blink {
-            width: 6px;
-            height: 6px;
-            background: var(--acid);
-            border-radius: 50%;
-            animation: pulse 1.8s infinite
-        }
-
-        /* CONFERENCE */
-        .conf {
-            background: var(--paper)
-        }
-
-        .conf-card {
-            display: grid;
-            grid-template-columns: auto 1fr auto;
-            gap: 60px;
-            padding: 48px 0;
-            border-top: 2px solid var(--ink);
-            border-bottom: 1px solid var(--rule);
-            align-items: center;
-            transition: padding .4s
-        }
-
-        .conf-card:hover {
-            padding-left: 20px;
-            padding-right: 20px
-        }
-
-        .conf-card .date-block {
-            font-family: 'Fraunces', serif;
-            font-weight: 300;
-            font-size: 3rem;
-            line-height: 1;
-            letter-spacing: -.02em
-        }
-
-        .conf-card .date-block small {
-            display: block;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.65rem;
-            letter-spacing: 0.16em;
-            text-transform: uppercase;
-            color: var(--muted);
-            margin-top: 8px
-        }
-
-        .conf-card .conf-info h3 {
-            font-family: 'Fraunces', serif;
-            font-size: 1.8rem;
-            font-weight: 400;
-            margin-bottom: 8px
-        }
-
-        .conf-card .conf-info p {
-            font-size: 0.9rem;
-            color: var(--ink-2);
-            line-height: 1.6
-        }
-
-        .conf-card .conf-info p.host {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.72rem;
-            text-transform: uppercase;
-            letter-spacing: 0.12em;
-            color: var(--muted);
-            margin-top: 6px
-        }
-
-        .conf-card .role {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            letter-spacing: 0.16em;
-            padding: 10px 16px;
-            border: 1px solid var(--ink);
-            white-space: nowrap
-        }
-
-        .conf-quote {
-            margin-top: 40px;
-            max-width: 760px;
-            font-family: 'Fraunces', serif;
-            font-style: italic;
-            font-weight: 300;
-            font-size: 1.3rem;
-            line-height: 1.5;
-            color: var(--ink-2)
-        }
-
-        @media (max-width:780px) {
-            .conf-card {
-                grid-template-columns: 1fr;
-                gap: 20px
-            }
-        }
-
-        /* CONTACT */
-        .contact {
-            background: var(--bg)
-        }
-
-        .contact h2.huge {
-            font-family: 'Fraunces', serif;
-            font-size: clamp(3.5rem, 11vw, 11rem);
-            font-weight: 200;
-            line-height: 0.9;
-            letter-spacing: -.04em;
-            margin-bottom: 60px
-        }
-
-        .contact h2.huge em {
-            color: var(--moss);
-            font-style: italic;
-            font-weight: 300
-        }
-
-        .contact h2.huge .arrow {
-            display: inline-block;
-            transition: transform .4s;
-            color: var(--rust)
-        }
-
-        .contact h2.huge:hover .arrow {
-            transform: translateX(20px) rotate(-12deg)
-        }
-
-        .contact-grid {
-            display: grid;
-            grid-template-columns: 1.4fr 1fr;
-            gap: 80px;
-            align-items: start
-        }
-
-        .contact-grid .lead {
-            font-family: 'Fraunces', serif;
-            font-style: italic;
-            font-weight: 300;
-            font-size: 1.4rem;
-            line-height: 1.5;
-            max-width: 32ch;
-            color: var(--ink-2);
-            margin-bottom: 40px
-        }
-
-        .contact-list a {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 24px 0;
-            border-top: 1px solid var(--ink);
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.85rem;
-            transition: padding .3s, color .3s
-        }
-
-        .contact-list a:last-child {
-            border-bottom: 1px solid var(--ink)
-        }
-
-        .contact-list a span.lbl {
-            text-transform: uppercase;
-            letter-spacing: 0.16em;
-            font-size: 0.65rem;
-            color: var(--muted);
-            transition: color .3s, transform .3s
-        }
-
-        .contact-list a:hover {
-            padding-left: 14px;
-            color: var(--moss)
-        }
-
-        .contact-list a:hover span.lbl {
-            color: var(--moss);
-            transform: translateX(-6px)
-        }
-
-        .contact-list a span.arr {
-            transition: transform .3s
-        }
-
-        .contact-list a:hover span.arr {
-            transform: translateX(8px)
-        }
-
-        @media (max-width:780px) {
-            .contact-grid {
-                grid-template-columns: 1fr;
-                gap: 40px
-            }
-        }
-
-        footer.foot {
-            padding: 30px 28px;
-            border-top: 1px solid var(--ink);
-            display: flex;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 14px;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.65rem;
-            text-transform: uppercase;
-            letter-spacing: 0.16em;
-            color: var(--muted);
-            position: relative;
-            z-index: 2
-        }
-
-        footer.foot button.audio {
-            cursor: none;
-            padding: 6px 12px;
-            border: 1px solid var(--muted);
-            transition: all .3s
-        }
-
-        footer.foot button.audio:hover {
-            background: var(--ink);
-            color: var(--paper);
-            border-color: var(--ink)
-        }
-
-        footer.foot button.audio.on {
-            background: var(--acid);
-            color: var(--ink);
-            border-color: var(--ink)
-        }
-
-        /* REVEAL */
-        .reveal {
-            opacity: 0;
-            transform: translateY(36px);
-            transition: opacity .9s cubic-bezier(.2, .9, .2, 1), transform .9s cubic-bezier(.2, .9, .2, 1)
-        }
-
-        .reveal.in {
-            opacity: 1;
-            transform: translateY(0)
-        }
-
-        .reveal.d1 {
-            transition-delay: .1s
-        }
-
-        .reveal.d2 {
-            transition-delay: .2s
-        }
-
-        .reveal.d3 {
-            transition-delay: .3s
-        }
-
-        /* ===== EASTER EGG — BTS MINIMAL ===== */
-        #bts-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            z-index: 9999;
-            background: rgba(18, 0, 38, 0.68);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-        }
-
-        #bts-overlay.show {
-            display: flex;
-            animation: btsIn 0.5s ease forwards;
-        }
-
-        #bts-overlay.hide {
-            animation: btsOut 0.4s ease forwards;
-        }
-
-        @keyframes btsIn {
-            from {
-                opacity: 0
-            }
-
-            to {
-                opacity: 1
-            }
-        }
-
-        @keyframes btsOut {
-            from {
-                opacity: 1
-            }
-
-            to {
-                opacity: 0
-            }
-        }
-
-        .bts-minimal {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 12px;
-            text-align: center;
-        }
-
-        .bts-minimal .bts-hearts {
-            font-size: 1.8rem;
-            letter-spacing: 0.4em;
-            opacity: 0;
-            animation: btsUp 0.5s ease 0.1s forwards;
-        }
-
-        .bts-minimal .bts-main {
-            font-family: 'Fraunces', serif;
-            font-style: italic;
-            font-weight: 300;
-            font-size: clamp(3rem, 9vw, 6rem);
-            color: #e8d0ff;
-            line-height: 1;
-            letter-spacing: -0.02em;
-            opacity: 0;
-            animation: btsUp 0.6s ease 0.2s forwards;
-        }
-
-        .bts-minimal .bts-from {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: clamp(0.6rem, 1.6vw, 0.82rem);
-            letter-spacing: 0.28em;
-            text-transform: uppercase;
-            color: rgba(200, 160, 255, 0.65);
-            opacity: 0;
-            animation: btsUp 0.5s ease 0.4s forwards;
-        }
-
-        @keyframes btsUp {
-            from {
-                opacity: 0;
-                transform: translateY(14px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-    </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Raktima Sengupta — Biotechnology &amp; Software Portfolio</title>
+<meta name="description" content="Portfolio of Raktima Sengupta — B.Tech Biotechnologist at Lovely Professional University, building computational tools and sustainable solutions. Download official CV and explore projects." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,100..900;1,9..144,100..900&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#EFEAE0;
+    --ink:#0E0F0C;
+    --ink-2:#2A2C26;
+    --muted:#726C60;
+    --rule:#D6CFBE;
+    --paper:#F7F3E9;
+    --paper-card:#FAF7F0;
+    --moss:#1F3D2B;
+    --moss-2:#2F5A3D;
+    --moss-light:#E4EDE6;
+    --acid:#C9F24D;
+    --rust:#C44A1A;
+    --plum:#5B2A4C;
+    --cyan:#13505B;
+    --accent:var(--moss);
+    --border:1px solid var(--ink);
+    --shadow-sm:0 2px 8px rgba(14,15,12,0.06);
+    --shadow-md:0 12px 32px rgba(14,15,12,0.12);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Space Grotesk',system-ui,-apple-system,sans-serif;
+    overflow-x:hidden;
+    cursor:none;
+    line-height:1.5;
+  }
+  @media (pointer:coarse){ body{cursor:auto} }
+  a,button{color:inherit; text-decoration:none; background:none; border:none; font:inherit; cursor:none}
+  @media (pointer:coarse){ a,button{cursor:pointer} }
+  ::selection{background:var(--ink); color:var(--acid)}
+
+  /* GRAIN canvas */
+  #grain{position:fixed; inset:0; pointer-events:none; opacity:0.07; mix-blend-mode:multiply; z-index:1}
+  #blob{position:fixed; inset:0; pointer-events:none; z-index:0}
+
+  /* CURSOR */
+  #cur,#curRing{position:fixed; top:0; left:0; pointer-events:none; z-index:9999; border-radius:50%; transform:translate(-50%,-50%); mix-blend-mode:difference}
+  #cur{width:10px; height:10px; background:#fff; transition:width .25s, height .25s, background .25s}
+  #curRing{width:36px; height:36px; border:1px solid #fff; transition:width .3s, height .3s, border-color .3s}
+  body.hov #cur{width:0; height:0}
+  body.hov #curRing{width:64px; height:64px; border:2px solid var(--acid); mix-blend-mode:normal; background:rgba(201,242,77,0.1)}
+  body.drag #curRing{width:80px; height:80px; border:1px dashed #fff}
+  @media (pointer:coarse){ #cur,#curRing{display:none} }
+
+  /* SCROLL PROGRESS */
+  #progress{position:fixed; top:0; left:0; height:3px; background:var(--moss); width:0; z-index:200; transition:width .1s linear}
+
+  /* TOP NAV */
+  nav.top{
+    position:fixed; top:0; left:0; right:0; z-index:100;
+    padding:16px 32px; display:flex; align-items:center; justify-content:space-between;
+    background:rgba(239,234,224,0.88); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+    border-bottom:1px solid rgba(14,15,12,0.08); color:var(--ink);
+    transition:transform .3s ease, background .3s;
+  }
+  nav.top .brand{display:flex; align-items:center; gap:12px}
+  nav.top .mark{font-family:'Fraunces',serif; font-weight:300; font-style:italic; font-size:1.4rem; letter-spacing:-.02em}
+  nav.top .mark b{font-weight:700; font-style:normal}
+  nav.top .mark-tag{font-family:'JetBrains Mono',monospace; font-size:0.62rem; text-transform:uppercase; letter-spacing:0.14em; padding:3px 8px; background:var(--moss-light); color:var(--moss); border-radius:3px; font-weight:500}
+  nav.top .links{display:flex; align-items:center; gap:24px; font-family:'JetBrains Mono',monospace; font-size:0.7rem; text-transform:uppercase; letter-spacing:0.14em}
+  nav.top .links a{position:relative; padding:6px 0; opacity:0.75; transition:opacity .3s, color .3s}
+  nav.top .links a:hover, nav.top .links a.active{opacity:1; color:var(--moss)}
+  nav.top .links a.active::before{content:"→ "; color:var(--moss); font-weight:bold}
+  
+  .nav-actions{display:flex; align-items:center; gap:16px}
+  .nav-cv-btn{
+    display:inline-flex; align-items:center; gap:8px;
+    padding:8px 16px; background:var(--ink); color:var(--paper);
+    font-family:'JetBrains Mono',monospace; font-size:0.68rem; text-transform:uppercase; letter-spacing:0.14em;
+    border:1px solid var(--ink); border-radius:2px;
+    transition:all .3s cubic-bezier(.2,.9,.2,1);
+  }
+  .nav-cv-btn:hover{
+    background:var(--acid); color:var(--ink); border-color:var(--ink); transform:translateY(-2px); box-shadow:0 4px 12px rgba(14,15,12,0.15);
+  }
+  .nav-cv-btn svg{width:13px; height:13px; fill:none; stroke:currentColor; stroke-width:2}
+  nav.top .clock{font-family:'JetBrains Mono',monospace; font-size:0.68rem; letter-spacing:0.1em; color:var(--muted)}
+  @media (max-width:920px){ nav.top .links, nav.top .clock{display:none} }
+
+  /* SECTION WRAPPER */
+  section{position:relative; z-index:2; padding:120px 28px}
+  .wrap{max-width:1280px; margin:0 auto}
+  .mono{font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.18em; font-size:0.7rem; color:var(--muted)}
+  h1,h2,h3,h4{font-family:'Fraunces',serif; font-weight:300; letter-spacing:-.02em; line-height:1.05}
+
+  /* BUTTONS & BADGES */
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:10px;
+    padding:12px 24px; font-family:'JetBrains Mono',monospace; font-size:0.75rem;
+    text-transform:uppercase; letter-spacing:0.14em; font-weight:500;
+    border:1px solid var(--ink); border-radius:2px; transition:all .3s cubic-bezier(.2,.9,.2,1);
+  }
+  .btn-primary{
+    background:var(--ink); color:var(--paper);
+  }
+  .btn-primary:hover{
+    background:var(--moss); color:var(--paper); border-color:var(--moss); transform:translateY(-3px);
+    box-shadow:0 6px 20px rgba(31,61,43,0.25);
+  }
+  .btn-accent{
+    background:var(--acid); color:var(--ink); border-color:var(--ink);
+  }
+  .btn-accent:hover{
+    background:var(--ink); color:var(--acid); transform:translateY(-3px);
+    box-shadow:0 6px 20px rgba(14,15,12,0.25);
+  }
+  .btn-ghost{
+    background:transparent; color:var(--ink);
+  }
+  .btn-ghost:hover{
+    background:rgba(14,15,12,0.06); border-color:var(--ink); transform:translateY(-2px);
+  }
+  .pill{
+    display:inline-flex; align-items:center; gap:6px;
+    padding:4px 10px; font-family:'JetBrains Mono',monospace; font-size:0.65rem;
+    text-transform:uppercase; letter-spacing:0.12em; border:1px solid var(--rule);
+    background:var(--paper); color:var(--ink-2); border-radius:2px;
+  }
+
+  /* HERO */
+  .hero{min-height:86vh; padding-top:140px; display:flex; flex-direction:column; justify-content:space-between}
+  .hero-top{display:flex; justify-content:space-between; gap:36px; margin-bottom:32px; flex-wrap:wrap}
+  .hero-top .meta{max-width:340px; font-family:'JetBrains Mono',monospace; font-size:0.72rem; line-height:1.8; color:var(--ink-2)}
+  .hero-top .meta .dot{display:inline-block; width:8px; height:8px; background:var(--moss); border-radius:50%; margin-right:8px; animation:pulse 2s infinite}
+  @keyframes pulse{0%,100%{opacity:1; transform:scale(1)} 50%{opacity:.4; transform:scale(.8)}}
+
+  .hero-name{font-family:'Fraunces',serif; font-weight:200; font-size:clamp(3.6rem, 13vw, 13rem); line-height:0.88; letter-spacing:-.04em; position:relative; margin-bottom:24px}
+  .hero-name .l1{display:block}
+  .hero-name .l2{display:block; font-style:italic; font-weight:300; padding-left:0.12em; color:var(--moss)}
+  .hero-name .l2 span{display:inline-block; transition:transform .4s cubic-bezier(.2,.9,.2,1.2), color .3s}
+  .hero-name .l2 span:hover{transform:translateY(-12px) rotate(-4deg); color:var(--rust)}
+
+  .hero-bottom{display:grid; grid-template-columns:1.3fr 1fr 1fr; gap:48px; align-items:end; margin-top:24px; padding-top:28px; border-top:1px solid var(--rule)}
+  .hero-tag{font-family:'Fraunces',serif; font-style:italic; font-weight:300; font-size:clamp(1.2rem, 1.7vw, 1.55rem); line-height:1.45; max-width:36ch}
+  .hero-tag em{color:var(--moss); font-style:normal; border-bottom:1px solid var(--moss)}
+  .hero-info h5{font-family:'JetBrains Mono',monospace; font-size:0.65rem; text-transform:uppercase; letter-spacing:0.18em; color:var(--muted); margin-bottom:10px; font-weight:500}
+  .hero-info p{font-size:0.92rem; line-height:1.65}
+  .hero-info a{display:inline-block; position:relative; color:var(--ink); font-weight:500}
+  .hero-info a::after{content:""; position:absolute; left:0; bottom:-2px; width:100%; height:1px; background:currentColor; transform:scaleX(0); transform-origin:right; transition:transform .3s cubic-bezier(.7,0,.3,1)}
+  .hero-info a:hover::after{transform:scaleX(1); transform-origin:left}
+  
+  .hero-cta-bar{display:flex; flex-wrap:wrap; gap:14px; margin-top:22px}
+  @media (max-width:920px){ .hero-bottom{grid-template-columns:1fr; gap:28px} }
+
+  /* MARQUEE */
+  .marquee{overflow:hidden; padding:22px 0; border-top:1px solid var(--ink); border-bottom:1px solid var(--ink); white-space:nowrap; font-family:'Fraunces',serif; font-style:italic; font-size:clamp(1.8rem,4vw,3.5rem); font-weight:200; background:var(--ink); color:var(--paper)}
+  .marquee .track{display:inline-block; animation:scroll 36s linear infinite}
+  .marquee .track span{display:inline-block; padding:0 24px}
+  .marquee .track span::after{content:"✦"; color:var(--acid); font-style:normal; padding-left:48px}
+  @keyframes scroll{from{transform:translateX(0)} to{transform:translateX(-50%)}}
+
+  /* SECTION HEAD */
+  .sec-head{display:flex; align-items:flex-end; justify-content:space-between; gap:40px; margin-bottom:60px; padding-bottom:24px; border-bottom:1px solid var(--ink); flex-wrap:wrap}
+  .sec-head .num{font-family:'JetBrains Mono',monospace; font-size:0.7rem; text-transform:uppercase; letter-spacing:0.18em; color:var(--muted); margin-bottom:12px}
+  .sec-head h2{font-size:clamp(2.5rem,6vw,5rem); font-weight:200; letter-spacing:-.04em}
+  .sec-head h2 i{font-weight:300; color:var(--moss)}
+  .sec-head .desc{max-width:380px; font-size:0.92rem; color:var(--ink-2); line-height:1.65}
+
+  /* SKILLS MATRIX */
+  .skills-matrix{background:var(--paper); border-top:1px solid var(--rule); border-bottom:1px solid var(--rule); padding:80px 28px}
+  .skills-grid{display:grid; grid-template-columns:repeat(3, 1fr); gap:28px}
+  .skill-group{
+    background:var(--bg); border:1px solid var(--rule); padding:32px 28px;
+    display:flex; flex-direction:column; justify-content:space-between;
+    transition:transform .3s cubic-bezier(.2,.9,.2,1), border-color .3s, box-shadow .3s;
+  }
+  .skill-group:hover{transform:translateY(-6px); border-color:var(--ink); box-shadow:var(--shadow-md)}
+  .skill-group-head{margin-bottom:24px}
+  .skill-group-head .badge{
+    display:inline-block; font-family:'JetBrains Mono',monospace; font-size:0.62rem;
+    text-transform:uppercase; letter-spacing:0.18em; padding:3px 8px; border:1px solid var(--ink);
+    margin-bottom:12px;
+  }
+  .skill-group[data-type="lang"] .badge{background:var(--moss); color:var(--paper); border-color:var(--moss)}
+  .skill-group[data-type="tools"] .badge{background:var(--plum); color:#fff; border-color:var(--plum)}
+  .skill-group[data-type="soft"] .badge{background:var(--cyan); color:#fff; border-color:var(--cyan)}
+  .skill-group h3{font-family:'Fraunces',serif; font-size:1.6rem; font-weight:300}
+  .skill-chips{display:flex; flex-wrap:wrap; gap:10px; margin-top:18px}
+  .skill-chip{
+    font-family:'JetBrains Mono',monospace; font-size:0.75rem;
+    padding:8px 16px; border:1px solid var(--ink); background:var(--paper);
+    transition:all .25s ease;
+  }
+  .skill-chip:hover{background:var(--ink); color:var(--acid); transform:translateY(-2px)}
+  .skill-desc{font-size:0.86rem; color:var(--muted); line-height:1.6; margin-top:18px; padding-top:16px; border-top:1px dashed var(--rule)}
+  @media (max-width:960px){ .skills-grid{grid-template-columns:1fr} }
+
+  /* PROJECTS SHOWCASE */
+  /* PROJECTS SHOWCASE — BALANCED TWO-COLUMN LAYOUT */
+  .project-featured{
+    background:var(--paper);
+    border:1px solid var(--ink);
+    box-shadow:var(--shadow-sm);
+    transition:box-shadow .4s ease;
+    display:grid;
+    grid-template-columns:1.05fr 1fr;
+    overflow:hidden;
+  }
+  .project-featured:hover{box-shadow:var(--shadow-md)}
+  
+  /* Left Column: Info & Details */
+  .pf-info{
+    padding:44px 40px;
+    display:flex; flex-direction:column; justify-content:space-between; gap:24px;
+    border-right:1px solid var(--ink);
+  }
+  .pf-badge-row{display:flex; align-items:center; flex-wrap:wrap; gap:8px; font-family:'JetBrains Mono',monospace; font-size:0.68rem; text-transform:uppercase; letter-spacing:0.12em}
+  .pf-lang-badge{background:var(--acid); color:var(--ink); font-weight:700; padding:2px 8px; border-radius:2px; font-size:0.65rem}
+  .pf-title{font-size:clamp(1.9rem, 2.8vw, 2.6rem); font-weight:300; line-height:1.12; margin-top:12px; margin-bottom:12px}
+  .pf-title em{font-style:italic; font-weight:400; color:var(--moss)}
+  .pf-lead{font-size:0.92rem; color:var(--ink-2); line-height:1.55; margin-bottom:14px}
+  .pf-bullets{list-style:none; display:flex; flex-direction:column; gap:11px}
+  .pf-bullets li{position:relative; padding-left:22px; font-size:0.88rem; line-height:1.55; color:var(--ink-2)}
+  .pf-bullets li::before{content:"→"; position:absolute; left:0; top:0; color:var(--moss); font-family:'JetBrains Mono',monospace; font-weight:bold}
+  
+  .pf-bottom-wrap{display:flex; flex-direction:column; gap:20px; padding-top:18px; border-top:1px solid var(--rule)}
+  .pf-meta-grid{
+    display:grid; grid-template-columns:repeat(3, 1fr); gap:14px;
+    font-family:'JetBrains Mono',monospace; font-size:0.7rem;
+  }
+  .pf-meta-grid span.label{display:block; font-size:0.58rem; letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); margin-bottom:3px}
+  .pf-actions{display:flex; flex-wrap:wrap; gap:12px; align-items:center}
+  
+  /* Right Column: Visual Preview & Capabilities */
+  .pf-visual-col{
+    background:var(--bg);
+    padding:32px 32px 28px 32px;
+    display:flex; flex-direction:column; justify-content:space-between; gap:20px;
+  }
+  .pf-mockup-card{
+    background:#fff; border:1px solid var(--rule); border-radius:6px;
+    overflow:hidden; box-shadow:0 8px 24px rgba(0,0,0,0.06);
+    transition:transform .3s ease;
+  }
+  .pf-mockup-card:hover{transform:translateY(-2px); box-shadow:0 12px 30px rgba(0,0,0,0.09)}
+  .pf-mockup-bar{
+    background:#efece2; padding:8px 14px;
+    display:flex; justify-content:space-between; align-items:center;
+    border-bottom:1px solid var(--rule);
+    font-family:'JetBrains Mono',monospace; font-size:0.62rem; color:var(--muted);
+  }
+  .pf-mockup-dots{display:flex; gap:5px}
+  .pf-mockup-dots span{width:7px; height:7px; border-radius:50%; background:#cbbaa2}
+  .pf-mockup-url{
+    background:rgba(255,255,255,0.85); padding:2px 12px; border-radius:12px;
+    color:var(--ink-2); font-size:0.62rem;
+  }
+  .pf-mockup-screen{
+    width:100%; display:block; line-height:0;
+    max-height:280px; overflow:hidden;
+  }
+  .pf-mockup-screen img{
+    width:100%; height:auto; display:block; object-fit:cover; object-position:top;
+  }
+  
+  /* Compact Feature Pills Deck */
+  .pf-mini-features{
+    display:grid; grid-template-columns:1fr 1fr; gap:10px;
+  }
+  .pf-mini-item{
+    background:var(--paper); border:1px solid var(--rule); padding:10px 12px; border-radius:2px;
+    transition:border-color .2s;
+  }
+  .pf-mini-item:hover{border-color:var(--ink)}
+  .pf-mini-item .lbl{display:block; font-family:'JetBrains Mono',monospace; font-size:0.6rem; color:var(--moss); font-weight:600; text-transform:uppercase; margin-bottom:2px}
+  .pf-mini-item .desc{font-size:0.76rem; color:var(--ink); font-weight:500; line-height:1.35}
+  
+  /* Right Column Footer Box */
+  .pf-repo-strip{
+    background:var(--ink); color:var(--paper); padding:12px 16px; border-radius:2px;
+    display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;
+    font-family:'JetBrains Mono',monospace; font-size:0.68rem;
+  }
+  .pf-repo-strip code{color:var(--acid)}
+  
+  @media (max-width:960px){
+    .project-featured{grid-template-columns:1fr}
+    .pf-info{border-right:none; border-bottom:1px solid var(--ink); padding:32px 24px}
+    .pf-visual-col{padding:28px 20px}
+  }
+
+  /* EXPERIENCE TIMELINE */
+  .timeline{display:flex; flex-direction:column; gap:36px}
+  .exp-card{
+    background:var(--paper); border:1px solid var(--ink); padding:40px;
+    display:grid; grid-template-columns:260px 1fr; gap:48px;
+    transition:transform .4s cubic-bezier(.2,.9,.2,1), box-shadow .4s;
+    box-shadow:var(--shadow-sm);
+  }
+  .exp-card:hover{transform:translateY(-6px); box-shadow:var(--shadow-md)}
+  .exp-meta{border-right:1px solid var(--rule); padding-right:24px}
+  .exp-date{
+    font-family:'Fraunces',serif; font-size:2.2rem; font-weight:300; line-height:1; color:var(--moss);
+    margin-bottom:8px;
+  }
+  .exp-duration{font-family:'JetBrains Mono',monospace; font-size:0.68rem; text-transform:uppercase; letter-spacing:0.16em; color:var(--muted)}
+  .exp-location{font-family:'JetBrains Mono',monospace; font-size:0.75rem; color:var(--ink-2); margin-top:16px}
+  .exp-badge{
+    display:inline-block; margin-top:16px; padding:4px 10px; background:var(--ink); color:var(--paper);
+    font-family:'JetBrains Mono',monospace; font-size:0.65rem; text-transform:uppercase; letter-spacing:0.14em;
+  }
+  
+  .exp-content h3{font-size:clamp(1.6rem, 2.4vw, 2.2rem); font-weight:300; margin-bottom:8px}
+  .exp-org{font-family:'JetBrains Mono',monospace; font-size:0.82rem; text-transform:uppercase; letter-spacing:0.12em; color:var(--muted); margin-bottom:24px}
+  .exp-list{list-style:none; display:flex; flex-direction:column; gap:16px}
+  .exp-list li{position:relative; padding-left:24px; font-size:0.95rem; line-height:1.65; color:var(--ink-2)}
+  .exp-list li::before{content:"✦"; position:absolute; left:0; top:0; color:var(--moss); font-size:0.8rem}
+  .exp-footer{margin-top:28px; padding-top:20px; border-top:1px solid var(--rule); display:flex; gap:10px; flex-wrap:wrap}
+  @media (max-width:880px){
+    .exp-card{grid-template-columns:1fr; gap:24px; padding:32px 24px}
+    .exp-meta{border-right:none; border-bottom:1px solid var(--rule); padding-right:0; padding-bottom:20px}
+  }
+
+  /* EDUCATION CARDS */
+  .edu-grid{display:grid; grid-template-columns:repeat(3, 1fr); gap:28px}
+  .edu-card{
+    background:var(--paper); border:1px solid var(--ink); padding:36px 30px;
+    display:flex; flex-direction:column; justify-content:space-between;
+    transition:transform .4s cubic-bezier(.2,.9,.2,1), box-shadow .4s;
+    box-shadow:var(--shadow-sm); min-height:360px;
+  }
+  .edu-card:hover{transform:translateY(-6px); box-shadow:var(--shadow-md)}
+  .edu-card.featured{border:2px solid var(--moss); background:#F9FAF6}
+  .edu-top{display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:20px}
+  .edu-level{font-family:'JetBrains Mono',monospace; font-size:0.65rem; text-transform:uppercase; letter-spacing:0.16em; color:var(--muted)}
+  .edu-period{font-family:'JetBrains Mono',monospace; font-size:0.65rem; color:var(--moss); font-weight:600}
+  .edu-card h3{font-family:'Fraunces',serif; font-size:1.6rem; font-weight:400; line-height:1.15; margin-bottom:10px}
+  .edu-card .program{font-size:0.92rem; color:var(--ink-2); line-height:1.5; margin-bottom:16px}
+  .edu-card .location{font-family:'JetBrains Mono',monospace; font-size:0.72rem; color:var(--muted); margin-bottom:24px}
+  .edu-score-box{
+    margin-top:auto; padding:16px 20px; background:var(--bg); border-left:3px solid var(--ink);
+    display:flex; justify-content:space-between; align-items:center; font-family:'JetBrains Mono',monospace;
+  }
+  .edu-card.featured .edu-score-box{border-left-color:var(--moss); background:var(--moss-light)}
+  .edu-score-label{font-size:0.65rem; text-transform:uppercase; letter-spacing:0.14em; color:var(--muted)}
+  .edu-score-val{font-size:1.25rem; font-weight:700; color:var(--ink)}
+  @media (max-width:960px){ .edu-grid{grid-template-columns:1fr} }
+
+  /* CERTIFICATES */
+  .cert-card{
+    background:var(--paper); border:1px solid var(--ink); padding:40px;
+    display:grid; grid-template-columns:180px 1fr auto; gap:40px; align-items:center;
+    box-shadow:var(--shadow-sm); transition:transform .3s, box-shadow .3s;
+  }
+  .cert-card:hover{transform:translateY(-4px); box-shadow:var(--shadow-md)}
+  .cert-date{
+    font-family:'Fraunces',serif; font-size:2.8rem; font-weight:300; line-height:1; color:var(--rust);
+  }
+  .cert-date small{display:block; font-family:'JetBrains Mono',monospace; font-size:0.65rem; letter-spacing:0.16em; text-transform:uppercase; color:var(--muted); margin-top:8px}
+  .cert-info h3{font-size:1.6rem; font-weight:400; line-height:1.2; margin-bottom:8px}
+  .cert-info p.theme{font-family:'Fraunces',serif; font-style:italic; font-size:1.05rem; color:var(--ink-2); margin-bottom:8px}
+  .cert-info p.host{font-family:'JetBrains Mono',monospace; font-size:0.72rem; text-transform:uppercase; letter-spacing:0.14em; color:var(--muted)}
+  .cert-badge{
+    font-family:'JetBrains Mono',monospace; font-size:0.7rem; text-transform:uppercase;
+    letter-spacing:0.16em; padding:10px 18px; border:1px solid var(--ink); background:var(--bg);
+    white-space:nowrap;
+  }
+  @media (max-width:880px){
+    .cert-card{grid-template-columns:1fr; gap:20px; padding:30px 24px}
+  }
+
+  /* CONTACT SECTION */
+  .contact{background:var(--bg)}
+  .contact h2.huge{font-family:'Fraunces',serif; font-size:clamp(3rem,9vw,9rem); font-weight:200; line-height:0.92; letter-spacing:-.04em; margin-bottom:50px}
+  .contact h2.huge em{color:var(--moss); font-style:italic; font-weight:300}
+  .contact h2.huge .arrow{display:inline-block; transition:transform .4s; color:var(--rust)}
+  .contact h2.huge:hover .arrow{transform:translateX(18px) rotate(-10deg)}
+  
+  .contact-grid{display:grid; grid-template-columns:1.2fr 1fr; gap:60px; align-items:start}
+  .contact-lead{font-family:'Fraunces',serif; font-style:italic; font-weight:300; font-size:1.35rem; line-height:1.55; max-width:34ch; color:var(--ink-2); margin-bottom:24px}
+  
+  .contact-list{display:flex; flex-direction:column}
+  .contact-item{
+    display:flex; justify-content:space-between; align-items:center; padding:22px 0;
+    border-top:1px solid var(--ink); font-family:'JetBrains Mono',monospace; font-size:0.85rem;
+    transition:padding .3s, color .3s;
+  }
+  .contact-item:last-child{border-bottom:1px solid var(--ink)}
+  .contact-item span.lbl{text-transform:uppercase; letter-spacing:0.16em; font-size:0.65rem; color:var(--muted); transition:color .3s, transform .3s}
+  .contact-item span.val{display:flex; align-items:center; gap:8px}
+  .contact-item span.arr{transition:transform .3s}
+  .contact-item:hover{padding-left:14px; color:var(--moss)}
+  .contact-item:hover span.lbl{color:var(--moss); transform:translateX(-4px)}
+  .contact-item:hover span.arr{transform:translateX(6px)}
+  @media (max-width:880px){ .contact-grid{grid-template-columns:1fr; gap:36px} }
+
+  /* FOOTER */
+  footer.foot{
+    padding:32px 28px; border-top:1px solid var(--ink);
+    display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;
+    font-family:'JetBrains Mono',monospace; font-size:0.68rem; text-transform:uppercase; letter-spacing:0.14em;
+    color:var(--muted); position:relative; z-index:2; background:var(--bg);
+  }
+  footer.foot .foot-left{display:flex; align-items:center; gap:16px; flex-wrap:wrap}
+  footer.foot button.audio{padding:6px 12px; border:1px solid var(--muted); border-radius:2px; transition:all .3s}
+  footer.foot button.audio:hover{background:var(--ink); color:var(--paper); border-color:var(--ink)}
+  footer.foot button.audio.on{background:var(--acid); color:var(--ink); border-color:var(--ink); font-weight:600}
+
+  /* MODAL */
+  .modal{position:fixed; inset:0; z-index:300; display:none; align-items:center; justify-content:center; padding:40px 24px; overflow-y:auto}
+  .modal.open{display:flex; animation:mfade .35s ease}
+  @keyframes mfade{from{opacity:0} to{opacity:1}}
+  .modal::before{content:""; position:absolute; inset:0; background:rgba(14,15,12,0.85); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px)}
+  .modal-inner{
+    position:relative; max-width:840px; width:100%; background:var(--paper);
+    border:1px solid var(--ink); padding:54px 48px; animation:mslide .4s cubic-bezier(.2,.9,.2,1);
+    max-height:90vh; overflow-y:auto; box-shadow:0 24px 64px rgba(0,0,0,0.4);
+  }
+  @keyframes mslide{from{transform:translateY(30px); opacity:0} to{transform:translateY(0); opacity:1}}
+  .modal-close{
+    position:absolute; top:20px; right:20px; width:40px; height:40px;
+    border:1px solid var(--ink); display:flex; align-items:center; justify-content:center;
+    font-family:'JetBrains Mono',monospace; font-size:1.1rem; transition:background .3s, color .3s;
+  }
+  .modal-close:hover{background:var(--ink); color:var(--paper)}
+  .modal-inner .m-eyebrow{font-family:'JetBrains Mono',monospace; font-size:0.68rem; text-transform:uppercase; letter-spacing:0.18em; color:var(--muted); margin-bottom:14px}
+  .modal-inner h3{font-family:'Fraunces',serif; font-size:clamp(1.8rem, 3.2vw, 2.6rem); font-weight:300; line-height:1.1; margin-bottom:24px}
+  .modal-inner .m-grid{display:grid; grid-template-columns:1fr 1fr; gap:32px; margin-bottom:28px}
+  .modal-inner h4{font-family:'JetBrains Mono',monospace; font-size:0.68rem; text-transform:uppercase; letter-spacing:0.16em; color:var(--moss); margin-bottom:10px; font-weight:600}
+  .modal-inner p, .modal-inner li{font-size:0.92rem; line-height:1.65; color:var(--ink-2)}
+  .modal-inner ul{padding-left:20px; display:flex; flex-direction:column; gap:8px}
+  .modal-inner .m-tags{display:flex; flex-wrap:wrap; gap:8px; margin-top:8px}
+  .modal-inner .m-tags span{font-family:'JetBrains Mono',monospace; font-size:0.65rem; text-transform:uppercase; letter-spacing:0.12em; border:1px solid var(--ink); padding:4px 10px; background:var(--bg)}
+  .modal-inner .m-impact{margin-top:24px; padding:20px; background:var(--bg); border-left:3px solid var(--moss); font-family:'JetBrains Mono',monospace; font-size:0.8rem; line-height:1.6; color:var(--ink)}
+  .modal-inner .m-actions{margin-top:28px; display:flex; gap:12px; flex-wrap:wrap}
+  @media (max-width:680px){ .modal-inner{padding:36px 24px} .modal-inner .m-grid{grid-template-columns:1fr} }
+
+  /* REVEAL ANIMATIONS */
+  .reveal{opacity:0; transform:translateY(32px); transition:opacity .85s cubic-bezier(.2,.9,.2,1), transform .85s cubic-bezier(.2,.9,.2,1)}
+  .reveal.in{opacity:1; transform:translateY(0)}
+  .reveal.d1{transition-delay:.12s}.reveal.d2{transition-delay:.22s}.reveal.d3{transition-delay:.32s}
+
+  /* TOAST NOTIFICATION */
+  #toast{
+    position:fixed; bottom:28px; right:28px; z-index:900;
+    padding:14px 20px; background:var(--ink); color:var(--paper);
+    font-family:'JetBrains Mono',monospace; font-size:0.75rem; letter-spacing:0.08em;
+    border-left:3px solid var(--acid); box-shadow:0 12px 32px rgba(0,0,0,0.3);
+    display:flex; align-items:center; gap:12px;
+    opacity:0; transform:translateY(20px); transition:all .3s ease; pointer-events:none;
+  }
+  #toast.show{opacity:1; transform:translateY(0)}
+</style>
 </head>
-
 <body>
 
-    <canvas id="blob"></canvas>
-    <canvas id="grain"></canvas>
+<canvas id="blob"></canvas>
+<canvas id="grain"></canvas>
 
-    <div id="cur"></div>
-    <div id="curRing"></div>
-    <div id="progress"></div>
+<div id="cur"></div>
+<div id="curRing"></div>
+<div id="progress"></div>
 
-    <nav class="top">
-        <a href="#top" class="mark">R<b>S</b><i>·</i>studio</a>
-        <div class="links">
-            <a href="#work" data-nav="work">Work</a>
-            <a href="#manifesto" data-nav="manifesto">Manifesto</a>
-            <a href="#conf" data-nav="conf">Field Notes</a>
-            <a href="#contact" data-nav="contact">Contact</a>
-        </div>
-        <div class="clock" id="clock">— : — IST</div>
-    </nav>
+<!-- TOP NAV -->
+<nav class="top">
+  <div class="brand">
+    <a href="#top" class="mark">R<b>S</b><i>·</i>biotech</a>
+    <span class="mark-tag">B.Tech Biotechnology</span>
+  </div>
+  <div class="links">
+    <a href="#projects" data-nav="projects">Projects</a>
+    <a href="#experience" data-nav="experience">Experience</a>
+    <a href="#skills" data-nav="skills">Skills</a>
+    <a href="#education" data-nav="education">Education</a>
+    <a href="#certificates" data-nav="certificates">Certificates</a>
+    <a href="#contact" data-nav="contact">Contact</a>
+  </div>
+  <div class="nav-actions">
+    <div class="clock" id="clock">— : — IST</div>
+    <a href="Raktima_Sengupta_CV.pdf" download="Raktima_Sengupta_CV.pdf" class="nav-cv-btn" id="navCvDownload" title="Download Raktima Sengupta's CV (PDF)">
+      <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"></path></svg>
+      <span>Download CV</span>
+    </a>
+  </div>
+</nav>
 
-    <section class="hero" id="top">
-        <div class="wrap">
-            <div class="hero-top">
-                <div class="meta reveal">
-                    <span class="dot"></span>AVAILABLE FOR RESEARCH<br>
-                    COLLABORATIONS · 2026<br>
-                    BASED IN INDIA
-                    <div class="explore-pill"><span class="blink"></span>Exploring synthetic biology &amp; policy</div>
-                </div>
-                <div class="meta reveal d1" style="text-align:right">
-                    PORTFOLIO / VOL. 01<br>
-                    BIOTECHNOLOGY × SYSTEMS<br>
-                    INDEX 001 — 003
-                </div>
-            </div>
-
-            <h1 class="hero-name reveal d1">
-                <span class="l1">Raktima</span>
-                <span class="l2" id="lastname"></span>
-            </h1>
-
-            <div class="hero-bottom">
-                <p class="hero-tag reveal d2">
-                    Working at the seam between <em>biological systems</em>, <em>sustainable materials</em>, and
-                    <em>digital infrastructure</em> — engineering things that compost, scale, and outlast their press
-                    release.
-                </p>
-                <div class="hero-info reveal d2">
-                    <h5>Discipline</h5>
-                    <p>B.Tech, Biotechnology<br>Sustainable Engineering<br>Digital Innovation</p>
-                </div>
-                <div class="hero-info reveal d3">
-                    <h5>Reach</h5>
-                    <p>
-                        <a href="mailto:raktima.sengupta@email.com">raktima.sengupta@email.com</a><br>
-                        <a href="tel:+919932738157">+91 99327 38157</a><br>
-                        <a href="https://github.com/Raktimajinniepoint" target="_blank" rel="noopener">github /
-                            Raktimajinniepoint</a>
-                    </p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <div class="marquee">
-        <div class="track">
-            <span>Compost the future</span><span>Engineer the cycle</span><span>Bio meets binary</span><span>Soil ·
-                Software · Society</span>
-            <span>Compost the future</span><span>Engineer the cycle</span><span>Bio meets binary</span><span>Soil ·
-                Software · Society</span>
-        </div>
+<!-- HERO -->
+<section class="hero" id="top">
+  <div class="wrap">
+    <div class="hero-top">
+      <div class="meta reveal">
+        <span class="dot"></span>STUDENT &amp; RESEARCHER · 2026<br>
+        LOVELY PROFESSIONAL UNIVERSITY<br>
+        PUNJAB &amp; SILIGURI, INDIA
+      </div>
+      <div class="meta reveal d1" style="text-align:right">
+        OFFICIAL PORTFOLIO<br>
+        B.TECH BIOTECHNOLOGY<br>
+        COMPUTATION × FIELDWORK
+      </div>
     </div>
 
-    <!-- SKILLS RIBBON -->
-    <div class="skills-ribbon">
-        <div class="wrap">
-            <span class="sr-label">Disciplines &amp; Tools</span>
-            <div class="sr-tags">
-                <span class="tag" data-cat="bio">Molecular Biology</span>
-                <span class="tag" data-cat="bio">Microbiology</span>
-                <span class="tag" data-cat="bio">Enzyme Engineering</span>
-                <span class="tag" data-cat="bio">Bioreactor Design</span>
-                <span class="tag" data-cat="bio">PCR &amp; Gel Electrophoresis</span>
-                <span class="tag" data-cat="mat">Bioplastics</span>
-                <span class="tag" data-cat="mat">Composite Materials</span>
-                <span class="tag" data-cat="mat">Waste Stream Analysis</span>
-                <span class="tag" data-cat="tech">Python · Django</span>
-                <span class="tag" data-cat="tech">Google Gemini API</span>
-                <span class="tag" data-cat="tech">MySQL</span>
-                <span class="tag" data-cat="tech">Data Visualisation</span>
-                <span class="tag" data-cat="tech">Systems Thinking</span>
-            </div>
+    <h1 class="hero-name reveal d1">
+      <span class="l1">Raktima</span>
+      <span class="l2" id="lastname"></span>
+    </h1>
+
+    <div class="hero-bottom">
+      <div>
+        <p class="hero-tag reveal d2">
+          Biotechnology undergraduate combining <em>computational logic</em>, <em>field-level intervention</em>, and <em>sustainable systems</em> to solve real-world problems.
+        </p>
+        <div class="hero-cta-bar reveal d3">
+          <a href="Raktima_Sengupta_CV.pdf" download="Raktima_Sengupta_CV.pdf" class="btn btn-primary" id="heroCvDownload">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"></path></svg>
+            Download CV (PDF)
+          </a>
+          <a href="#projects" class="btn btn-ghost">Explore Work ↓</a>
         </div>
+      </div>
+      <div class="hero-info reveal d2">
+        <h5>Core Domains</h5>
+        <p>
+          Agricultural Technology<br>
+          Child Protection &amp; Social Outreach<br>
+          Bioengineering &amp; Sustainability
+        </p>
+      </div>
+      <div class="hero-info reveal d3">
+        <h5>Direct Availability</h5>
+        <p>
+          Open for Research &amp; Internships<br>
+          Based in Punjab / Siliguri, India<br>
+          <a href="#contact" style="color:var(--moss)">Get In Touch →</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee">
+  <div class="track">
+    <span>Biotechnology &amp; Bioengineering</span><span>Computational Logic</span><span>Algorithmic Modeling</span><span>Community Field Outreach</span><span>Sustainable Development</span>
+    <span>Biotechnology &amp; Bioengineering</span><span>Computational Logic</span><span>Algorithmic Modeling</span><span>Community Field Outreach</span><span>Sustainable Development</span>
+  </div>
+</div>
+
+<!-- FEATURED PROJECT -->
+<section id="projects">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div>
+        <div class="num">§ 01 / Key Project</div>
+        <h2>AgriHelp — Farm <i>Economics &amp; Advisory</i></h2>
+      </div>
+      <p class="desc">A full-stack agricultural web platform engineered with Python &amp; Django to compute crop economics, forecast disease risk, track mandi rates, and provide AI advisories.</p>
     </div>
 
-    <!-- WORK -->
-    <section id="work">
-        <div class="wrap">
-            <div class="sec-head reveal">
-                <div>
-                    <div class="num">§ 01 / Selected Work</div>
-                    <h2>Three <i>experiments</i><br>in motion.</h2>
-                </div>
-                <p class="desc">A handful of projects — each one a small attempt to rewire a broken system. Drag,
-                    scroll, tap a card to read the full lab notes.</p>
-            </div>
-
-            <div class="proj-rail-wrap reveal d1">
-                <div class="proj-hint">
-                    <span>← drag · scroll · click to expand →</span>
-                    <div class="arrows">
-                        <button id="prev" aria-label="Previous">←</button>
-                        <button id="next" aria-label="Next">→</button>
-                    </div>
-                </div>
-                <div class="proj-rail" id="rail">
-
-                    <article class="proj-card" data-tone="moss" data-modal="p1">
-                        <div class="pc-top">
-                            <span class="pc-num">01 / 03</span>
-                            <span class="pc-tag">Engineering · Digital</span>
-                        </div>
-                        <h3>Integrated Digital Ecosystem for <em>Horticulture</em></h3>
-                        <p class="pc-desc">A centralized web platform that digitizes the full agricultural lifecycle —
-                            fields, finances, and direct buyer markets — with Gemini-powered government scheme matching.
-                        </p>
-                        <div class="pc-meta">
-                            <div><span>Year</span>2024 · Agrithon 2.0</div>
-                            <div><span>Stack</span>Django · Gemini · MySQL</div>
-                            <div><span>Role</span>Build &amp; AI</div>
-                            <div><span>Status</span>Prototype shipped</div>
-                        </div>
-                        <button class="pc-cta">Read the lab notes</button>
-                    </article>
-
-                    <article class="proj-card" data-tone="acid" data-modal="p2">
-                        <div class="pc-top">
-                            <span class="pc-num">02 / 03</span>
-                            <span class="pc-tag">Sustainability · Materials</span>
-                        </div>
-                        <h3>Solar-Powered <em>Bioplastic</em> Conversion</h3>
-                        <p class="pc-desc">A zero-fossil-fuel pipeline that turns starch-rich kitchen waste into
-                            flexible, translucent bioplastic film — heated by sun, plasticized by glycerol.</p>
-                        <div class="pc-meta">
-                            <div><span>Yield</span>20 kg → 2 kg / day</div>
-                            <div><span>Energy</span>100 % solar</div>
-                            <div><span>Process</span>α-amylase · 70–90 °C</div>
-                            <div><span>Status</span>Lab validated</div>
-                        </div>
-                        <button class="pc-cta">Read the lab notes</button>
-                    </article>
-
-                    <article class="proj-card" data-tone="rust" data-modal="p3">
-                        <div class="pc-top">
-                            <span class="pc-num">03 / 03</span>
-                            <span class="pc-tag">Infrastructure · Materials</span>
-                        </div>
-                        <h3>Bamboo-Plastic Modular <em>Roads</em></h3>
-                        <p class="pc-desc">Prefabricated interlocking road panels for Northeast India's high-rainfall,
-                            hilly terrain — a 3-layer composite of recycled plastic, bamboo lattice, and mineral filler.
-                        </p>
-                        <div class="pc-meta">
-                            <div><span>Lifespan</span>10–12 years</div>
-                            <div><span>Cost</span>20–30 % cheaper</div>
-                            <div><span>Layers</span>Plastic · Bamboo · Filler</div>
-                            <div><span>Status</span>Design phase</div>
-                        </div>
-                        <button class="pc-cta">Read the lab notes</button>
-                    </article>
-
-                </div>
-            </div>
+    <div class="project-featured reveal d1">
+      <!-- LEFT COLUMN: PROJECT DETAILS & TECH -->
+      <div class="pf-info">
+        <div>
+          <div class="pf-badge-row">
+            <span class="pill" style="background:var(--moss); color:#fff; border-color:var(--moss)">GitHub Repository</span>
+            <span class="mono">Django 5.2 · AI</span>
+            <span class="pf-lang-badge">10+ Regional Languages</span>
+          </div>
+          <h3 class="pf-title">AgriHelp — <em>Farm Intelligence</em> Platform</h3>
+          <p class="pf-lead">
+            An open-source agricultural platform engineered to bridge computational agronomy and grassroots farming, supporting <strong>over 10 regional Indian languages</strong>.
+          </p>
+          <ul class="pf-bullets">
+            <li><strong>AI-Powered Crop Advisory:</strong> Automated notifications, irrigation scheduling, and rust disease detection.</li>
+            <li><strong>Ask AgriBot (एग्रीबॉट):</strong> Multilingual chatbot for pest management, spray timings, and soil questions.</li>
+            <li><strong>Live Mandi Rates &amp; Weather:</strong> Real-time APMC commodity price feeds (Wheat, Rice, Sugarcane) with local weather telemetry.</li>
+            <li><strong>10+ Regional Languages &amp; PWA:</strong> Native localization across Hindi, Punjabi, Bengali, Marathi, Telugu, Tamil, Gujarati + more, with offline caching.</li>
+          </ul>
         </div>
-    </section>
 
-    <!-- MANIFESTO -->
-    <section class="manifesto" id="manifesto">
-        <div class="wrap">
-            <div class="sec-head reveal">
-                <div>
-                    <div class="num">§ 02 / Manifesto</div>
-                    <h2>Less spectacle.<br>More <i>circulation</i>.</h2>
-                </div>
-                <p class="desc">A working set of beliefs about what biotech, materials, and software ought to do — and
-                    what they ought to refuse.</p>
-            </div>
-
-            <div class="manifesto-body">
-                <p class="big reveal">
-                    I treat <em>waste streams</em>, <em>field data</em>, and <em>code</em> as the same kind of raw
-                    material — things to be looped back into a system that closes on itself, not opens onto a landfill.
-                </p>
-                <div class="col reveal d1">
-                    <p>I'm a B.Tech biotechnologist, but the projects on this page are deliberately interdisciplinary.
-                        Some are wet lab. Some are full-stack. Most are both — because the interesting problems don't
-                        sit politely inside one syllabus.</p>
-                    <p>Every project here begins with a specific failure mode in an existing system: middlemen
-                        extracting value from farmers, plastic that no machine wants, bitumen roads dissolving in
-                        monsoon. Every solution begins with the question <em>"what's already nearby that we're throwing
-                            away?"</em></p>
-
-                </div>
-            </div>
+        <div class="pf-bottom-wrap">
+          <div class="pf-meta-grid">
+            <div><span class="label">Backend</span>Django · Python</div>
+            <div><span class="label">AI Engine</span>Gemini AI</div>
+            <div><span class="label">Languages</span>10+ Indic Regional</div>
+          </div>
+          <div class="pf-actions">
+            <a href="https://github.com/AbhishekPandey-10/AgriHelp" target="_blank" rel="noopener" class="btn btn-primary">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+              View on GitHub ↗
+            </a>
+            <button class="btn btn-ghost" id="openProjectModal">Architecture Notes →</button>
+          </div>
         </div>
-    </section>
+      </div>
 
-    <!-- CONFERENCE -->
-    <section class="conf" id="conf">
-        <div class="wrap">
-            <div class="sec-head reveal">
-                <div>
-                    <div class="num">§ 03 / Field Notes</div>
-                    <h2>Conferences &amp; <i>conversations</i>.</h2>
-                </div>
-                <p class="desc">Where the work meets the wider community of researchers, policymakers, and other
-                    stubborn optimists.</p>
-            </div>
-
-            <div class="conf-card reveal">
-                <div class="date-block">10 / 25<small>30–31 October</small></div>
-                <div class="conf-info">
-                    <h3>BIOINNOVATE 2025</h3>
-                    <p>Bridging Science and Society for Sustainable Development Goals</p>
-                    <p class="host">School of Bioengineering &amp; Biosciences · Lovely Professional University</p>
-                </div>
-                <div class="role">Participant</div>
-            </div>
-            <p class="conf-quote reveal d1">"Two days of debating where bioengineering policy meets the UN SDGs — and
-                which of those goals are still treated as optional by industry."</p>
+      <!-- RIGHT COLUMN: COMPACT SCREENSHOT & CAPABILITIES -->
+      <div class="pf-visual-col">
+        <div class="pf-mockup-card">
+          <div class="pf-mockup-bar">
+            <div class="pf-mockup-dots"><span></span><span></span><span></span></div>
+            <div class="pf-mockup-url">agrihelp.app/crop-advisory/hi</div>
+            <span style="font-size:0.58rem; color:var(--moss); font-weight:600">Django + AI</span>
+          </div>
+          <div class="pf-mockup-screen">
+            <img src="agrihelp_preview.jpg" alt="AgriHelp Web Application Dashboard Interface" loading="lazy">
+          </div>
         </div>
-    </section>
 
-    <!-- CONTACT -->
-    <section class="contact" id="contact">
-        <div class="wrap">
-            <h2 class="huge reveal">Let's build<br>something <em>that</em><br>composts <span class="arrow">↗</span></h2>
-            <div class="contact-grid">
-                <p class="lead reveal">Open to research partnerships, lab collaborations, and roles where biotech,
-                    sustainable materials, and digital systems are allowed to share the same table.</p>
-                <div class="contact-list reveal d1">
-                    <a href="mailto:raktima.sengupta@email.com"><span
-                            class="lbl">Email</span><span>raktima.sengupta@email.com <span
-                                class="arr">→</span></span></a>
-                    <a href="tel:+919932738157"><span class="lbl">Phone</span><span>+91 99327 38157 <span
-                                class="arr">→</span></span></a>
-                    <a href="https://www.linkedin.com/in/raktima-sengupta-5ab957380/" target="_blank" rel="noopener"><span
-                            class="lbl">LinkedIn</span><span>/in/raktima-sengupta <span class="arr">→</span></span></a>
-                    <a href="https://github.com/Raktimajinniepoint" target="_blank" rel="noopener"><span
-                            class="lbl">GitHub</span><span>/Raktimajinniepoint <span class="arr">→</span></span></a>
-                </div>
-            </div>
+        <!-- COMPACT CAPABILITY GRID -->
+        <div class="pf-mini-features">
+          <div class="pf-mini-item">
+            <span class="lbl">Crop Advisory</span>
+            <div class="desc">आज की फसल सलाह · Rust warnings &amp; stage alerts</div>
+          </div>
+          <div class="pf-mini-item">
+            <span class="lbl">Ask AgriBot</span>
+            <div class="desc">एग्रीबॉट · Multilingual AI diagnostic assistant</div>
+          </div>
+          <div class="pf-mini-item">
+            <span class="lbl">Mandi Rates</span>
+            <div class="desc">मंडी भाव · Live daily commodity pricing</div>
+          </div>
+          <div class="pf-mini-item">
+            <span class="lbl">Disease Gauge</span>
+            <div class="desc">कम जोखिम · Micro-climate risk detection</div>
+          </div>
         </div>
-    </section>
 
-    <footer class="foot">
-        <div>© 2025 · Raktima Sengupta · B.Tech Biotechnology</div>
-        <div><button class="audio" id="audioBtn">Sound: off</button>
+        <div class="pf-repo-strip">
+          <span>Repository: <code>AbhishekPandey-10/AgriHelp</code></span>
+          <a href="https://github.com/AbhishekPandey-10/AgriHelp" target="_blank" rel="noopener" style="color:var(--acid); text-decoration:underline">Inspect Code ↗</a>
         </div>
-        <div>Try the <kbd>B</kbd>-<kbd>I</kbd>-<kbd>O</kbd> sequence ✦</div>
-    </footer>
+      </div>
+    </div>
+  </div>
+</section>
 
-    <!-- MODALS DATA -->
-    <div class="modal" id="modal">
-        <button class="modal-close" id="modalClose">×</button>
-        <div class="modal-inner" id="modalInner"></div>
+<!-- EXPERIENCE SECTION (KOSI LOK MANCH) -->
+<section id="experience" style="background:var(--paper)">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div>
+        <div class="num">§ 02 / Professional Experience</div>
+        <h2>Fieldwork &amp; <i>Case Management</i></h2>
+      </div>
+      <p class="desc">Grassroots engagement under Siliguri District Office, bridging empathy, community outreach, and structured documentation.</p>
     </div>
 
-    <script>
-        /* =========== DATA =========== */
-        const PROJECTS = {
-            p1: { tag: "Engineering · Digital · 2024", title: "Integrated Digital Ecosystem for Horticulture", problem: "Horticulture farmers faced chronic disadvantages — no data analysis tools, poor financial planning, and market exploitation due to lack of direct buyer access.", solution: "Built a centralized web platform digitizing the full agricultural lifecycle. Farmers log land size, inputs, and expenses. The system auto-calculates profit and loss. A Buyers Portal enables direct farmer-to-buyer transactions, eliminating middlemen and price exploitation.", extraTitle: "AI Layer", extra: "Integrated Google Gemini 1.5 Flash to automatically identify eligible government schemes based on each farmer's land size and crop data.", tags: ["Python 3.13", "Django", "Gemini 1.5 Flash", "Tailwind CSS", "MySQL"], impact: "IMPACT — Direct farmer-to-buyer pipeline + automated scheme eligibility, removing two layers of intermediation." },
-            p2: { tag: "Sustainability · Materials", title: "Solar-Powered Bioplastic Conversion", problem: "Non-biodegradable plastic pollution and accumulation of starch-rich kitchen waste (potato peels, rice water) with no sustainable disposal pathway.", solution: "Engineered a zero-fossil-fuel process converting kitchen waste into flexible, translucent bioplastic sheets using a solar-powered reactor.", extraTitle: "Methodology", extraList: ["Enzymatic pretreatment using α-amylase to reduce starch molecular weight", "Slurry heated in solar-powered reactor at 70–90 °C", "Glycerol added as plasticizer to improve elasticity"], tags: ["α-Amylase", "Glycerol", "Solar Reactor", "Kitchen Waste"], impact: "IMPACT — 20 kg of kitchen waste → 2 kg of bioplastic film daily at community scale, on a 100 % renewable energy cycle." },
-            p3: { tag: "Infrastructure · Materials", title: "Bamboo-Plastic Modular Roads for Northeast India", problem: "Conventional bitumen roads fail rapidly in Northeast India's hilly, high-rainfall terrain. Non-recyclable plastic waste has no scalable exit.", solution: "Designed prefabricated interlocking road panels using a 3-layer composite system. Lightweight, modular — deployable without heavy machinery and replaceable section by section.", extraTitle: "Three-Layer System", extraList: ["Surface — Waterproof recycled plastic shell", "Core — Tension-absorbing bamboo lattice", "Base — Shredded non-recyclable plastic mixed with mineral filler"], tags: ["Recycled Plastic", "Bamboo Lattice", "Mineral Filler", "Modular Panels"], impact: "IMPACT — 10–12 year lifespan · 20–30 % cheaper than conventional bitumen · Section-by-section replaceable." }
-        };
+    <div class="timeline">
+      <article class="exp-card reveal d1">
+        <div class="exp-meta">
+          <div class="exp-date">Jun '26</div>
+          <div class="exp-duration">1-Week Intensive Fieldwork</div>
+          <div class="exp-location">
+            <strong>Siliguri District Office</strong><br>
+            West Bengal, India
+          </div>
+          <span class="exp-badge">Official Internship</span>
+        </div>
 
-        /* =========== HOVER LETTERS =========== */
-        const lname = document.getElementById('lastname');
-        "Sengupta".split('').forEach(ch => { const s = document.createElement('span'); s.textContent = ch; lname.appendChild(s); });
+        <div class="exp-content">
+          <h3>Intern — Child Protection &amp; Community Support</h3>
+          <div class="exp-org">Kosi Lok Manch · Siliguri District Office</div>
+          <ul class="exp-list">
+            <li><strong>Field-based and case-management activities:</strong> Actively participated in child protection and victim support operations under the direct guidance of the District Coordinator.</li>
+            <li><strong>Home visits &amp; survivor counselling:</strong> Conducted frontline home visits and assisted in structured counselling sessions with survivors and their families as an integral part of ongoing intervention efforts.</li>
+            <li><strong>Stakeholder engagement:</strong> Accompanied the experienced field team during outreach and intervention visits, engaging meaningfully with local stakeholders, families, and community members.</li>
+            <li><strong>Documentation &amp; follow-up:</strong> Supported documentation and case follow-up with utmost diligence, demonstrating professionalism, empathy, and strong communication skills when handling sensitive matters.</li>
+          </ul>
+          <div class="exp-footer">
+            <span class="pill">Child Protection</span>
+            <span class="pill">Survivor Counseling Support</span>
+            <span class="pill">Field Outreach</span>
+            <span class="pill">Case Documentation</span>
+            <span class="pill">Stakeholder Engagement</span>
+          </div>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
 
-        /* =========== CURSOR =========== */
-        (function () {
-            if (matchMedia('(pointer:coarse)').matches) return;
-            const c = document.getElementById('cur'), r = document.getElementById('curRing');
-            let mx = 0, my = 0, rx = 0, ry = 0;
-            addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; c.style.left = mx + 'px'; c.style.top = my + 'px'; });
-            function loop() { rx += (mx - rx) * 0.18; ry += (my - ry) * 0.18; r.style.left = rx + 'px'; r.style.top = ry + 'px'; requestAnimationFrame(loop); } loop();
-            document.querySelectorAll('a,button,.proj-card,kbd').forEach(el => {
-                el.addEventListener('mouseenter', () => document.body.classList.add('hov'));
-                el.addEventListener('mouseleave', () => document.body.classList.remove('hov'));
-            });
-        })();
+<!-- SKILLS SECTION -->
+<section id="skills" class="skills-matrix">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div>
+        <div class="num">§ 03 / Verified Skills</div>
+        <h2>Technical &amp; <i>Interpersonal</i> Core</h2>
+      </div>
+      <p class="desc">A structured index of verified programming languages, development tools, platforms, and collaborative competencies.</p>
+    </div>
 
-        /* =========== GRAIN =========== */
-        (function () {
-            const c = document.getElementById('grain'), x = c.getContext('2d');
-            function size() { c.width = innerWidth; c.height = innerHeight; }
-            size(); addEventListener('resize', size);
-            function draw() {
-                const id = x.createImageData(c.width, c.height); const d = id.data;
-                for (let i = 0; i < d.length; i += 4) { const v = Math.random() * 255 | 0; d[i] = d[i + 1] = d[i + 2] = v; d[i + 3] = 255; }
-                x.putImageData(id, 0, 0);
-            }
-            let t = 0; function loop() { if (t++ % 3 === 0) draw(); requestAnimationFrame(loop); } loop();
-        })();
+    <div class="skills-grid">
+      <!-- LANGUAGES -->
+      <div class="skill-group reveal d1" data-type="lang">
+        <div>
+          <div class="skill-group-head">
+            <span class="badge">Programming</span>
+            <h3>Languages</h3>
+          </div>
+          <p style="font-size:0.9rem; color:var(--ink-2)">Core algorithmic and computational languages applied across coursework, systems development, and data manipulation.</p>
+          <div class="skill-chips">
+            <div class="skill-chip">C</div>
+            <div class="skill-chip">C++</div>
+            <div class="skill-chip">Python</div>
+          </div>
+        </div>
+        <p class="skill-desc">Applied in mathematical modeling, computational logic, data structures, and developing the Farmer Profit &amp; Loss Calculator.</p>
+      </div>
 
-        /* =========== BLOB (mouse-following gradient on canvas) =========== */
-        (function () {
-            const c = document.getElementById('blob'), x = c.getContext('2d');
-            function size() { c.width = innerWidth; c.height = innerHeight; } size(); addEventListener('resize', size);
-            let mx = innerWidth / 2, my = innerHeight / 2, bx = mx, by = my;
-            addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY });
-            const cols = ['#1F3D2B', '#C9F24D', '#C44A1A', '#5B2A4C'];
-            let ci = 0;
-            setInterval(() => { ci = (ci + 1) % cols.length }, 5000);
-            function loop() {
-                bx += (mx - bx) * 0.04; by += (my - by) * 0.04;
-                x.clearRect(0, 0, c.width, c.height);
-                const g = x.createRadialGradient(bx, by, 0, bx, by, Math.max(innerWidth, innerHeight) * 0.55);
-                g.addColorStop(0, cols[ci] + '33');
-                g.addColorStop(0.4, cols[(ci + 1) % cols.length] + '14');
-                g.addColorStop(1, 'rgba(239,234,224,0)');
-                x.fillStyle = g; x.fillRect(0, 0, c.width, c.height);
-                requestAnimationFrame(loop);
-            } loop();
-        })();
+      <!-- TOOLS / PLATFORMS -->
+      <div class="skill-group reveal d2" data-type="tools">
+        <div>
+          <div class="skill-group-head">
+            <span class="badge">Workflow</span>
+            <h3>Tools &amp; Platforms</h3>
+          </div>
+          <p style="font-size:0.9rem; color:var(--ink-2)">Modern developer environments, cloud computing notebooks, and collaborative version control platforms.</p>
+          <div class="skill-chips">
+            <div class="skill-chip">VS Code</div>
+            <div class="skill-chip">GitHub</div>
+            <div class="skill-chip">Google Colab</div>
+          </div>
+        </div>
+        <p class="skill-desc">Used for code authoring, version control repository management, open-source deployment, and exploratory computational notebooks.</p>
+      </div>
 
-        /* =========== CLOCK =========== */
-        (function () {
-            const el = document.getElementById('clock'); if (!el) return;
-            function tick() {
-                const d = new Date();
-                const ist = new Date(d.getTime() + (330 * 60 * 1000 + d.getTimezoneOffset() * 60 * 1000));
-                const h = String(ist.getHours()).padStart(2, '0'), m = String(ist.getMinutes()).padStart(2, '0'), s = String(ist.getSeconds()).padStart(2, '0');
-                el.textContent = `${h}:${m}:${s} IST`;
-            } tick(); setInterval(tick, 1000);
-        })();
+      <!-- SOFT SKILLS -->
+      <div class="skill-group reveal d3" data-type="soft">
+        <div>
+          <div class="skill-group-head">
+            <span class="badge">Professional</span>
+            <h3>Soft Skills</h3>
+          </div>
+          <p style="font-size:0.9rem; color:var(--ink-2)">Interpersonal competencies proven through sensitive field counseling, cross-functional projects, and team environments.</p>
+          <div class="skill-chips">
+            <div class="skill-chip">Teamwork</div>
+            <div class="skill-chip">Communication</div>
+            <div class="skill-chip">Problem-Solving</div>
+            <div class="skill-chip">Time Management</div>
+          </div>
+        </div>
+        <p class="skill-desc">Demonstrated in high-stakes case-management at Kosi Lok Manch, academic presentations, and collaborative technical challenges.</p>
+      </div>
+    </div>
+  </div>
+</section>
 
-        /* =========== SCROLL PROGRESS =========== */
-        addEventListener('scroll', () => {
-            const h = document.documentElement; const p = h.scrollTop / (h.scrollHeight - h.clientHeight);
-            document.getElementById('progress').style.width = (p * 100) + '%';
-        });
+<!-- EDUCATION SECTION -->
+<section id="education">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div>
+        <div class="num">§ 04 / Academic Credentials</div>
+        <h2>Education &amp; <i>Milestones</i></h2>
+      </div>
+      <p class="desc">A timeline of scientific education spanning undergraduate biotechnology, senior secondary, and secondary foundations.</p>
+    </div>
 
-        /* =========== REVEAL =========== */
-        (function () {
-            const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), { threshold: 0.1 });
-            document.querySelectorAll('.reveal').forEach(e => io.observe(e));
-        })();
+    <div class="edu-grid">
+      <!-- LPU -->
+      <article class="edu-card featured reveal d1">
+        <div>
+          <div class="edu-top">
+            <span class="edu-level">Undergraduate Degree</span>
+            <span class="edu-period">Aug '23 – Present</span>
+          </div>
+          <h3>Lovely Professional University</h3>
+          <p class="program"><strong>Bachelor of Technology — Biotechnology</strong></p>
+          <p class="location">Punjab, India</p>
+        </div>
+        <div class="edu-score-box">
+          <span class="edu-score-label">Cumulative GPA</span>
+          <span class="edu-score-val">7.48 <span style="font-size:0.75rem; font-weight:normal; color:var(--muted)">/ 10</span></span>
+        </div>
+      </article>
 
-        /* =========== COUNT UP =========== */
-        (function () {
-            const io = new IntersectionObserver(es => es.forEach(e => {
-                if (!e.isIntersecting) return;
-                e.target.querySelectorAll('[data-count]').forEach(n => {
-                    const t = +n.dataset.count, sfx = n.dataset.suffix || '', t0 = performance.now(), dur = 1400;
-                    function f(now) { const p = Math.min(1, (now - t0) / dur), eased = 1 - Math.pow(1 - p, 3); n.textContent = Math.round(eased * t) + sfx; if (p < 1) requestAnimationFrame(f); }
-                    requestAnimationFrame(f);
-                });
-                io.unobserve(e.target);
-            }), { threshold: 0.4 });
-            document.querySelectorAll('.stats, .hero-bottom').forEach(s => io.observe(s));
-        })();
+      <!-- PRAGATI -->
+      <article class="edu-card reveal d2">
+        <div>
+          <div class="edu-top">
+            <span class="edu-level">Senior Secondary (12th)</span>
+            <span class="edu-period">Intermediate</span>
+          </div>
+          <h3>Pragati Sr. Sec. School</h3>
+          <p class="program">Intermediate (12th Grade Science)</p>
+          <p class="location">Kota, Rajasthan, India</p>
+        </div>
+        <div class="edu-score-box">
+          <span class="edu-score-label">Final Score</span>
+          <span class="edu-score-val">75%</span>
+        </div>
+      </article>
 
-        /* =========== NAV ACTIVE =========== */
-        (function () {
-            const links = document.querySelectorAll('nav.top a[data-nav]');
-            const ids = ['work', 'manifesto', 'conf', 'contact'];
-            const io = new IntersectionObserver(es => es.forEach(e => {
-                if (e.isIntersecting) links.forEach(l => l.classList.toggle('active', l.dataset.nav === e.target.id));
-            }), { threshold: 0.35 });
-            ids.forEach(id => { const el = document.getElementById(id); if (el) io.observe(el); });
-        })();
+      <!-- DPS -->
+      <article class="edu-card reveal d3">
+        <div>
+          <div class="edu-top">
+            <span class="edu-level">Secondary (10th)</span>
+            <span class="edu-period">Matriculation</span>
+          </div>
+          <h3>Delhi Public School</h3>
+          <p class="program">Matriculation (10th Grade)</p>
+          <p class="location">Siliguri, West Bengal, India</p>
+        </div>
+        <div class="edu-score-box">
+          <span class="edu-score-label">Final Score</span>
+          <span class="edu-score-val">89%</span>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
 
-        /* =========== PROJECT RAIL — drag + arrows =========== */
-        (function () {
-            const rail = document.getElementById('rail');
-            let down = false, sx = 0, sl = 0;
-            rail.addEventListener('mousedown', e => { down = true; sx = e.pageX; sl = rail.scrollLeft; rail.classList.add('dragging'); document.body.classList.add('drag'); });
-            addEventListener('mouseup', () => { down = false; rail.classList.remove('dragging'); document.body.classList.remove('drag'); });
-            addEventListener('mousemove', e => { if (!down) return; rail.scrollLeft = sl - (e.pageX - sx); });
-            document.getElementById('next').onclick = () => rail.scrollBy({ left: rail.clientWidth * 0.6, behavior: 'smooth' });
-            document.getElementById('prev').onclick = () => rail.scrollBy({ left: -rail.clientWidth * 0.6, behavior: 'smooth' });
-        })();
+<!-- CERTIFICATES & CONFERENCES -->
+<section id="certificates" style="background:var(--paper)">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div>
+        <div class="num">§ 05 / Certifications &amp; Conferences</div>
+        <h2>International <i>Conferences</i></h2>
+      </div>
+      <p class="desc">Participation in international scientific forums advancing bioengineering and the United Nations Sustainable Development Goals.</p>
+    </div>
 
-        /* =========== MODAL =========== */
-        (function () {
-            const m = document.getElementById('modal'), inner = document.getElementById('modalInner');
-            function open(key) {
-                const d = PROJECTS[key]; if (!d) return;
-                let html = `<div class="m-eyebrow">${d.tag}</div><h3>${d.title}</h3><div class="m-grid"><div><h4>The Problem</h4><p>${d.problem}</p></div><div><h4>The Solution</h4><p>${d.solution}</p></div><div><h4>${d.extraTitle}</h4>`;
-                if (d.extraList) { html += '<ul>' + d.extraList.map(x => `<li>${x}</li>`).join('') + '</ul>'; } else { html += `<p>${d.extra}</p>`; }
-                html += `</div><div><h4>Stack &amp; Materials</h4><div class="m-tags">${d.tags.map(t => `<span>${t}</span>`).join('')}</div></div></div><div class="m-impact">${d.impact}</div>`;
-                inner.innerHTML = html; m.classList.add('open'); document.body.style.overflow = 'hidden';
-            }
-            function close() { m.classList.remove('open'); document.body.style.overflow = ''; }
-            document.querySelectorAll('.proj-card').forEach(c => c.addEventListener('click', () => open(c.dataset.modal)));
-            document.getElementById('modalClose').onclick = close;
-            m.addEventListener('click', e => { if (e.target === m) close(); });
-            addEventListener('keydown', e => { if (e.key === 'Escape') close(); });
-        })();
+    <div class="cert-card reveal d1">
+      <div class="cert-date">
+        10 / 25
+        <small>October 2025</small>
+      </div>
+      <div class="cert-info">
+        <span class="pill" style="margin-bottom:8px">International Conference</span>
+        <h3>BIOINNOVATE 2025</h3>
+        <p class="theme">"Bridging Science and Society for Sustainable Development Goals"</p>
+        <p class="host">School of Bioengineering and Biosciences · Lovely Professional University</p>
+      </div>
+      <div>
+        <span class="cert-badge">Official Certificate</span>
+      </div>
+    </div>
+  </div>
+</section>
 
-        /* =========== AUDIO (synth click) =========== */
-        (function () {
-            let on = false, ctx = null;
-            const btn = document.getElementById('audioBtn');
-            btn.addEventListener('click', () => {
-                on = !on; btn.classList.toggle('on', on); btn.textContent = 'Sound: ' + (on ? 'on' : 'off');
-                if (on && !ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
-                if (on) ctx.resume();
-            });
-            function blip(freq = 440) {
-                if (!on || !ctx) return;
-                const o = ctx.createOscillator(), g = ctx.createGain();
-                o.frequency.value = freq; o.type = 'sine';
-                g.gain.value = 0.0001; g.gain.exponentialRampToValueAtTime(0.08, ctx.currentTime + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.18);
-                o.connect(g).connect(ctx.destination); o.start(); o.stop(ctx.currentTime + 0.2);
-            }
-            document.addEventListener('click', e => { if (e.target.closest('a,button,.proj-card')) blip(520 + Math.random() * 220); });
-            document.querySelectorAll('a,button,.proj-card').forEach(el => el.addEventListener('mouseenter', () => blip(880)));
-        })();
+<!-- CONTACT SECTION -->
+<section class="contact" id="contact">
+  <div class="wrap">
+    <h2 class="huge reveal">Let's connect<br>and <em>collaborate</em> <span class="arrow">↗</span></h2>
+    <div class="contact-grid">
+      <div>
+        <p class="contact-lead reveal">
+          Open to research opportunities, biotechnology internships, computational biology projects, and academic collaborations.
+        </p>
+        <div class="reveal d1" style="font-family:'JetBrains Mono',monospace; font-size:0.75rem; color:var(--muted); line-height:1.9">
+          <div><span style="color:var(--ink); font-weight:600">Institution:</span> Lovely Professional University</div>
+          <div><span style="color:var(--ink); font-weight:600">Location:</span> Punjab / Siliguri, India</div>
+          <div><span style="color:var(--ink); font-weight:600">Discipline:</span> B.Tech Biotechnology</div>
+          <div style="margin-top:14px">
+            <a href="Raktima_Sengupta_CV.pdf" download="Raktima_Sengupta_CV.pdf" class="btn btn-primary" style="padding:10px 18px; font-size:0.7rem">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"></path></svg>
+              Download CV (PDF)
+            </a>
+          </div>
+        </div>
+      </div>
 
-        /* =========== EASTER EGG: B I O =========== */
-        (function () {
-            const seq = ['b', 'i', 'o']; let idx = 0;
-            let overlay = null, closeTimer = null;
+      <div class="contact-list reveal d1">
+        <a href="mailto:raktimasengupta7@gmail.com" class="contact-item" id="copyEmailLink" title="Click to email">
+          <span class="lbl">Email</span>
+          <span class="val">raktimasengupta7@gmail.com <span class="arr">→</span></span>
+        </a>
+        <a href="tel:+919933738157" class="contact-item">
+          <span class="lbl">Phone</span>
+          <span class="val">+91 9933738157 <span class="arr">→</span></span>
+        </a>
+        <a href="https://www.linkedin.com/in/raktima-sengupta-5ab957380" target="_blank" rel="noopener" class="contact-item">
+          <span class="lbl">LinkedIn</span>
+          <span class="val">/in/raktima-sengupta-5ab957380 <span class="arr">→</span></span>
+        </a>
+        <a href="https://github.com/Raktimajinniepoint" target="_blank" rel="noopener" class="contact-item">
+          <span class="lbl">GitHub</span>
+          <span class="val">/Raktimajinniepoint <span class="arr">→</span></span>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
 
-            function openBTS() {
-                if (overlay) return;
-                overlay = document.createElement('div');
-                overlay.id = 'bts-overlay';
+<!-- FOOTER -->
+<footer class="foot">
+  <div class="foot-left">
+    <span>© 2026 Raktima Sengupta</span>
+    <span>•</span>
+    <span>B.Tech Biotechnology · Lovely Professional University</span>
+  </div>
+  <div style="display:flex; align-items:center; gap:16px; flex-wrap:wrap">
+    <button class="audio" id="audioBtn">Sound: off</button>
+    <span>Key sequence: <kbd style="background:var(--paper); padding:2px 6px; border:1px solid var(--rule); border-radius:2px">B</kbd>-<kbd style="background:var(--paper); padding:2px 6px; border:1px solid var(--rule); border-radius:2px">I</kbd>-<kbd style="background:var(--paper); padding:2px 6px; border:1px solid var(--rule); border-radius:2px">O</kbd></span>
+  </div>
+</footer>
 
-                const box = document.createElement('div');
-                box.className = 'bts-minimal';
-                box.innerHTML = `
-                    <span class="bts-hearts">💜 💜 💜</span>
-                    <span class="bts-main">Love BTS</span>
-                    <span class="bts-from">from Rak 💜</span>
-                `;
-                overlay.appendChild(box);
-                document.body.appendChild(overlay);
-                overlay.classList.add('show');
+<!-- PROJECT LAB NOTES MODAL -->
+<div class="modal" id="modal">
+  <div class="modal-inner" id="modalInner">
+    <button class="modal-close" id="modalClose" aria-label="Close modal">×</button>
+    <div class="m-eyebrow">Agri-Tech Systems Architecture · Python &amp; Django</div>
+    <h3>AgriHelp — Farm Intelligence Platform</h3>
+    
+    <div class="m-grid">
+      <div>
+        <h4>Problem Statement</h4>
+        <p>Smallholder farmers frequently lack accessible financial calculation tools to evaluate their gross margins before and after harvest. Unpredictable input costs (seeds, synthetic fertilizers, machinery rentals, and labor) often lead to debt cycles and mispriced market sales.</p>
+      </div>
+      <div>
+        <h4>The Python Engine</h4>
+        <p>Engineered core computational functions in Python that process variable and fixed expenditures against projected or realized agricultural yields and market rates, outputting itemized profit, loss, and margin percentages.</p>
+      </div>
+      <div>
+        <h4>Technical Stack</h4>
+        <div class="m-tags">
+          <span>Python</span>
+          <span>Django 5.2</span>
+          <span>Google Gemini AI</span>
+          <span>MySQL</span>
+          <span>PWA</span>
+          <span>10+ Regional Languages</span>
+          <span>GitHub</span>
+        </div>
+      </div>
+      <div>
+        <h4>Integrated Dashboard Features</h4>
+        <ul>
+          <li><strong>Multilingual Support:</strong> Localized across <strong>over 10 regional Indian languages</strong> (Hindi, Punjabi, Bengali, Marathi, Telugu, Tamil, Gujarati, Kannada, etc.) ensuring inclusive rural access.</li>
+          <li><strong>Today's Crop Advisory:</strong> Automated agronomy notifications, rust symptom surveillance, and irrigation timing.</li>
+          <li><strong>Ask AgriBot (एग्रीबॉट):</strong> Conversational assistant for real-time pest control and soil diagnosis.</li>
+          <li><strong>Mandi Rates (मंडी भाव):</strong> Live local market price benchmarks for Wheat, Rice, and Sugarcane.</li>
+          <li><strong>Weather &amp; Disease Early Warning:</strong> Predictive micro-climate risk indexes (Low/Moderate/High risk alert tiers).</li>
+        </ul>
+      </div>
+    </div>
 
-                function close() {
-                    if (!overlay) return;
-                    overlay.classList.add('hide');
-                    clearTimeout(closeTimer);
-                    document.removeEventListener('keydown', onEsc);
-                    const ref = overlay;
-                    overlay = null;
-                    setTimeout(() => ref.remove(), 420);
-                }
-                function onEsc(e) { if (e.key === 'Escape') close(); }
-                document.addEventListener('keydown', onEsc);
-                overlay.addEventListener('click', close);
-                closeTimer = setTimeout(close, 6000);
-            }
+    <div class="m-impact">
+      <strong>CV VERIFIED NOTE:</strong> Agricultural economics and crop intelligence web platform built with Python &amp; Django, featuring 10+ regional languages and published open-source on GitHub.
+    </div>
 
-            addEventListener('keydown', e => {
-                if (e.key.toLowerCase() === seq[idx]) {
-                    idx++;
-                    if (idx === seq.length) { openBTS(); idx = 0; }
-                } else { idx = 0; }
-            });
-        })();
+    <div class="m-actions">
+      <a href="https://github.com/AbhishekPandey-10/AgriHelp" target="_blank" rel="noopener" class="btn btn-primary">
+        Visit AgriHelp on GitHub ↗
+      </a>
+      <button class="btn btn-ghost" onclick="document.getElementById('modalClose').click()">Close Notes</button>
+    </div>
+  </div>
+</div>
 
-        /* smooth scroll for anchor nav */
-        document.querySelectorAll('a[href^="#"]').forEach(a => {
-            a.addEventListener('click', e => {
-                const t = document.querySelector(a.getAttribute('href'));
-                if (t) { e.preventDefault(); t.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
-            });
-        });
-    </script>
+<!-- TOAST MESSAGE -->
+<div id="toast">
+  <span id="toastText">Action completed</span>
+</div>
+
+<script>
+/* =========== HOVER LETTERS =========== */
+(function(){
+  const lname = document.getElementById('lastname');
+  if(!lname) return;
+  "Sengupta".split('').forEach(ch => {
+    const s = document.createElement('span');
+    s.textContent = ch;
+    lname.appendChild(s);
+  });
+})();
+
+/* =========== CURSOR =========== */
+(function(){
+  if(matchMedia('(pointer:coarse)').matches) return;
+  const c = document.getElementById('cur'), r = document.getElementById('curRing');
+  let mx = window.innerWidth/2, my = window.innerHeight/2, rx = mx, ry = my;
+  addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; c.style.left = mx + 'px'; c.style.top = my + 'px'; });
+  function loop(){
+    rx += (mx - rx) * 0.18; ry += (my - ry) * 0.18;
+    r.style.left = rx + 'px'; r.style.top = ry + 'px';
+    requestAnimationFrame(loop);
+  }
+  loop();
+  document.querySelectorAll('a, button, input, select, .skill-chip, .edu-card, .exp-card, .project-featured').forEach(el => {
+    el.addEventListener('mouseenter', () => document.body.classList.add('hov'));
+    el.addEventListener('mouseleave', () => document.body.classList.remove('hov'));
+  });
+})();
+
+/* =========== GRAIN CANVAS =========== */
+(function(){
+  const c = document.getElementById('grain'), x = c.getContext('2d');
+  function size(){ c.width = innerWidth; c.height = innerHeight; }
+  size(); addEventListener('resize', size);
+  function draw(){
+    const id = x.createImageData(c.width, c.height); const d = id.data;
+    for(let i=0; i<d.length; i+=4){
+      const v = Math.random()*255|0;
+      d[i] = d[i+1] = d[i+2] = v;
+      d[i+3] = 255;
+    }
+    x.putImageData(id, 0, 0);
+  }
+  let t=0; function loop(){ if(t++ % 3 === 0) draw(); requestAnimationFrame(loop); } loop();
+})();
+
+/* =========== AMBIENT BLOB GRADIENT =========== */
+(function(){
+  const c = document.getElementById('blob'), x = c.getContext('2d');
+  function size(){ c.width = innerWidth; c.height = innerHeight; } size(); addEventListener('resize', size);
+  let mx = innerWidth/2, my = innerHeight/2, bx = mx, by = my;
+  addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+  const cols = ['#1F3D2B', '#C9F24D', '#13505B', '#C44A1A'];
+  let ci = 0;
+  setInterval(() => { ci = (ci + 1) % cols.length; }, 5000);
+  function loop(){
+    bx += (mx - bx) * 0.04; by += (my - by) * 0.04;
+    x.clearRect(0, 0, c.width, c.height);
+    const g = x.createRadialGradient(bx, by, 0, bx, by, Math.max(innerWidth, innerHeight) * 0.52);
+    g.addColorStop(0, cols[ci] + '26');
+    g.addColorStop(0.4, cols[(ci+1)%cols.length] + '10');
+    g.addColorStop(1, 'rgba(239,234,224,0)');
+    x.fillStyle = g; x.fillRect(0, 0, c.width, c.height);
+    requestAnimationFrame(loop);
+  } loop();
+})();
+
+/* =========== LIVE IST CLOCK =========== */
+(function(){
+  const el = document.getElementById('clock'); if(!el) return;
+  function tick(){
+    const d = new Date();
+    const ist = new Date(d.getTime() + (330 * 60 * 1000 + d.getTimezoneOffset() * 60 * 1000));
+    const h = String(ist.getHours()).padStart(2,'0'), m = String(ist.getMinutes()).padStart(2,'0'), s = String(ist.getSeconds()).padStart(2,'0');
+    el.textContent = `${h}:${m}:${s} IST`;
+  }
+  tick(); setInterval(tick, 1000);
+})();
+
+/* =========== SCROLL PROGRESS =========== */
+addEventListener('scroll', () => {
+  const h = document.documentElement;
+  const p = h.scrollTop / (h.scrollHeight - h.clientHeight);
+  document.getElementById('progress').style.width = (p * 100) + '%';
+});
+
+/* =========== REVEAL ON SCROLL =========== */
+(function(){
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if(entry.isIntersecting){
+        entry.target.classList.add('in');
+        io.unobserve(entry.target);
+      }
+    });
+  }, {threshold: 0.08});
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+})();
+
+/* =========== ACTIVE NAVIGATION HIGHLIGHT =========== */
+(function(){
+  const links = document.querySelectorAll('nav.top a[data-nav]');
+  const ids = ['projects', 'experience', 'skills', 'education', 'certificates', 'contact'];
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if(entry.isIntersecting){
+        links.forEach(l => l.classList.toggle('active', l.dataset.nav === entry.target.id));
+      }
+    });
+  }, {threshold: 0.3});
+  ids.forEach(id => { const el = document.getElementById(id); if(el) io.observe(el); });
+})();
+
+
+/* =========== PROJECT MODAL =========== */
+(function(){
+  const modal = document.getElementById('modal');
+  const openBtn = document.getElementById('openProjectModal');
+  const closeBtn = document.getElementById('modalClose');
+
+  function openM(){
+    modal.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeM(){
+    modal.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  if(openBtn) openBtn.addEventListener('click', openM);
+  if(closeBtn) closeBtn.addEventListener('click', closeM);
+  modal.addEventListener('click', e => { if(e.target === modal) closeM(); });
+  addEventListener('keydown', e => { if(e.key === 'Escape') closeM(); });
+})();
+
+/* =========== AUDIO FEEDBACK =========== */
+(function(){
+  let on = false, ctx = null;
+  const btn = document.getElementById('audioBtn');
+  if(!btn) return;
+  btn.addEventListener('click', () => {
+    on = !on;
+    btn.classList.toggle('on', on);
+    btn.textContent = 'Sound: ' + (on ? 'on' : 'off');
+    if(on && !ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
+    if(on && ctx) ctx.resume();
+  });
+
+  function blip(freq=440){
+    if(!on || !ctx) return;
+    try{
+      const o = ctx.createOscillator(), g = ctx.createGain();
+      o.frequency.value = freq; o.type = 'sine';
+      g.gain.value = 0.0001;
+      g.gain.exponentialRampToValueAtTime(0.06, ctx.currentTime + 0.01);
+      g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.15);
+      o.connect(g).connect(ctx.destination);
+      o.start(); o.stop(ctx.currentTime + 0.18);
+    }catch(e){}
+  }
+
+  document.addEventListener('click', e => {
+    if(e.target.closest('a, button, input, select')) blip(540 + Math.random()*180);
+  });
+  document.querySelectorAll('a, button, .skill-chip').forEach(el => {
+    el.addEventListener('mouseenter', () => blip(860));
+  });
+})();
+
+/* =========== TOAST UTILITY =========== */
+function showToast(msg){
+  const t = document.getElementById('toast');
+  const txt = document.getElementById('toastText');
+  if(!t || !txt) return;
+  txt.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3200);
+}
+
+/* =========== TRACK DOWNLOADS =========== */
+document.querySelectorAll('a[download]').forEach(link => {
+  link.addEventListener('click', () => {
+    showToast('Downloading Raktima_Sengupta_CV.pdf...');
+  });
+});
+
+/* =========== EASTER EGG: B I O =========== */
+(function(){
+  const seq = ['b', 'i', 'o'];
+  let i = 0;
+  addEventListener('keydown', e => {
+    if(e.key.toLowerCase() === seq[i]){
+      i++;
+      if(i === seq.length){
+        showToast('✦ BIO-SYSTEM SEQUENCE UNLOCKED ✦');
+        document.body.style.filter = 'invert(0.9) hue-rotate(180deg)';
+        setTimeout(() => { document.body.style.filter = ''; }, 1800);
+        i = 0;
+      }
+    } else {
+      i = 0;
+    }
+  });
+})();
+</script>
 </body>
-
 </html>
